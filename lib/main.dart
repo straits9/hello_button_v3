@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:hello_button_v3/views/button_view.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 void main() {
@@ -12,7 +14,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -28,9 +30,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       initialRoute: '/',
-      routes: {
-        '/': (context) => const MyHomePage(title: 'Flutter Demo Home Page'),
-      },
+      getPages: [
+        GetPage(
+          name: '/',
+          page: () => const MyHomePage(title: 'Flutter Demo Home Page'),
+        ),
+        GetPage(name: '/hb/:code', page: () => const ButtonView()),
+      ],
     );
   }
 }
