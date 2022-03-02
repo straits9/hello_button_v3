@@ -32,14 +32,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      // return MaterialApp(
+    //return GetMaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      // initialRoute: '/',
+      initialRoute: '/',
       onGenerateRoute: RouteConfiguration.onGenerateRoute,
       // onGenerateRoute: (settings) {
       //   final name = settings.name;
