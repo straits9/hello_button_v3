@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MenuView extends StatelessWidget {
-  final String? storeid;
-  const MenuView({Key? key, this.storeid}) : super(key: key);
+  final String? store;
+  const MenuView({Key? key, this.store}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +11,7 @@ class MenuView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('메뉴 페이지 ($storeid)'),
+            Text('메뉴 페이지 ($store)'),
           ],
         ),
       ),

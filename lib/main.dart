@@ -10,9 +10,10 @@ import 'package:hello_button_v3/views/menu_view.dart';
 import 'package:hello_button_v3/views/top_view.dart';
 import 'package:hello_button_v3/views/unknown_view.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 void main() async {
-  // setUrlStrategy(PathUrlStrategy());
+  setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
 
   await initServices();
@@ -41,24 +42,35 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         // initialRoute: '/',
-        home: TopView(),
+        // home: TopView(),
         // onGenerateRoute: RouteConfiguration.onGenerateRoute,
 
         // use onGenerateRoute:
         onGenerateRoute: (settings) {
-          final args = settings.arguments as Map<String, dynamic>?;
-          switch (settings.name) {
+          final parts = settings.name?.split('?');
+          // only arguments support
+          // final args = settings.arguments as Map<String, dynamic>?;
+
+          // argument and query string supports
+          final args = settings.arguments != null
+              ? settings.arguments as Map<String, dynamic>?
+              : parts?.length == 2
+                  ? Uri.splitQueryString(parts![1])
+                  : null;
+          print('args: $parts, $args');
+
+          switch (parts?[0]) {
             case '/':
               return MaterialPageRoute(
-                settings: settings,   // pass settings to display nav-address bar
+                settings: settings, // pass settings to display nav-address bar
                 builder: (_) => TopView(),
               );
 
             case '/menu':
-              final store = args?['store'] as String;
+              final store = args?['store'] as String?;
               return MaterialPageRoute(
                 settings: settings, // pass settings to display nav-address bar
-                builder: (_) => MenuView(storeid: store),
+                builder: (_) => MenuView(store: store),
               );
 
             default:
@@ -80,6 +92,25 @@ class MyApp extends StatelessWidget {
         // ],
         );
   }
+}
+
+abstract class Router {
+  // derived classes implement these methods
+  bool matches(RouteSettings settings);
+  MaterialPageRoute route(RouteSettings settings);
+
+  // helper for
+  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    final router =
+        routers.firstWhere((r) => r.maches(settings), orElse: () => null);
+    return router != null
+        ? router.route(settings)
+        : MaterialPageRoute(
+            settings: settings,
+            builder: (_) => UnknownView('unknown route: ${settings.name}'));
+  }
+
+  static final routers = [];
 }
 
 class Path {
