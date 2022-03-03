@@ -98,7 +98,11 @@ class MyApp extends StatelessWidget {
 class Router {
   // helper for
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
-    final Page? router = routers.firstWhere((r) => r.matches(settings));
+    final Page? router = routers.firstWhere((r) {
+      print('check page ${settings?.name}');
+      var ret = r.matches(settings);
+      return ret;
+    });
     return router != null
         ? MaterialPageRoute(
             settings: settings, builder: (context) => router.page())
@@ -125,21 +129,36 @@ class Page {
       if (part[0] == ':') {
         var id = part.substring(1);
         _var.add(id);
+        print('variables: $_var');
         return '(?<$id>[^\\/]+)';
+        //return '(?<$id>[^/]+)';
       } else {
         return part;
       }
-    });
+    }).toList();
     print('parts: $parts');
-    _regex = parts.join('/');
+    _regex = parts.join('\\/');
+    //_regex = parts.join('/');
+    print('skip check');
+    _regex = '$_regex\$';
     print('_regex: $_regex');
   }
 
   final List<String> _var = [];
   late String _regex;
 
-  bool matches(RouteSettings settings) =>
-      settings.name != null ? settings.name!.startsWith(name) : false;
+  bool matches(RouteSettings settings) {
+    print(
+        'page ${settings.name} compare to [$name] with regex string (r\'$_regex\')');
+    print('and variables ${_var.toString()}');
+
+    //final re = RegExp(r'${_regex}');
+    final re = RegExp(_regex);
+    final match = re.firstMatch(settings.name!);
+    print(match.toString());
+    return match == null ? false : true;
+    //return settings.name != null ? settings.name!.startsWith(name) : false;
+  }
 }
 
 class Path {
