@@ -9,6 +9,7 @@ ref: flutter/samples/navigation_and_routing (github)
 ## versions to do
 
 ### v3.0.0
+- Flutter SPA로 web page 구성. 되도록 dependency가 없는 형태로 제작
 - 기존의 hello button과 동일한 spec으로 정리
 - 기존 vue에서 server-side build 부분을 rest API로 추가해서 새로운 서버 (version: )와 연결
 - 기존 hello-bell-v2 (gitlab)의 sql/hb/hb0001.sql, hb0002.sql을 추가 api로 구성
@@ -36,11 +37,19 @@ ref: flutter/samples/navigation_and_routing (github)
 - remove /#/ query string: url_strategy
 - change base href not root ('/') ref: ./web/index.html
   ```
-  $ flutter build --base-href <directory>
+  $ flutter build --base-href <directory> --web
   ```
+
+## Web page용 Deeplink 제작
+- Getx와 같은 depencency를 사용하지 않고 만드는 방법
+- url/#/과 같은 형태를 제거 (url_strategy plugin)
+- 참고: [Understanding Flutter: deep links on the web](https://sellsbrothers.com/understanding-flutter-deep-links-on-the-web)
 
 ## AWS S3 deploy
 - error시 처리부분을 error.html이 아니라 index.html로 변경 해준다. 이렇게 하면 SPA 지원이 된다.
+- 참고: [S3 Static Sites
+](https://gist.github.com/bradwestfall/b5b0e450015dbc9b4e56e5f398df48ff)
+- 참고: [AWS를 이용해 SPA 호스팅하기](https://wormwlrm.github.io/2020/11/15/SPA-hosting-via-AWS.html)
 
 ## Nginx deploy
 - root, sub directory 모두 설치 가능

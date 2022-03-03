@@ -36,87 +36,119 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     //return GetMaterialApp(
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        // initialRoute: '/',
-        // home: TopView(),
-        // onGenerateRoute: RouteConfiguration.onGenerateRoute,
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      // initialRoute: '/',
+      // home: TopView(),
+      // onGenerateRoute: RouteConfiguration.onGenerateRoute,
+      onGenerateRoute: Router.onGenerateRoute,
 
-        // use onGenerateRoute:
-        onGenerateRoute: (settings) {
-          final parts = settings.name?.split('?');
-          // only arguments support
-          // final args = settings.arguments as Map<String, dynamic>?;
+      // use onGenerateRoute:
+      // onGenerateRoute: (settings) {
+      //   final parts = settings.name?.split('?');
+      //   // only arguments support
+      //   // final args = settings.arguments as Map<String, dynamic>?;
 
-          // argument and query string supports
-          final args = settings.arguments != null
-              ? settings.arguments as Map<String, dynamic>?
-              : parts?.length == 2
-                  ? Uri.splitQueryString(parts![1])
-                  : null;
-          print('args: $parts, $args');
+      //   // argument and query string supports
+      //   final args = settings.arguments != null
+      //       ? settings.arguments as Map<String, dynamic>?
+      //       : parts?.length == 2
+      //           ? Uri.splitQueryString(parts![1])
+      //           : null;
+      //   print('args: $parts, $args');
 
-          switch (parts?[0]) {
-            case '/':
-              return MaterialPageRoute(
-                settings: settings, // pass settings to display nav-address bar
-                builder: (_) => TopView(),
-              );
+      //   switch (parts?[0]) {
+      //     case '/':
+      //       return MaterialPageRoute(
+      //         settings: settings, // pass settings to display nav-address bar
+      //         builder: (_) => TopView(),
+      //       );
 
-            case '/menu':
-              final store = args?['store'] as String?;
-              return MaterialPageRoute(
-                settings: settings, // pass settings to display nav-address bar
-                builder: (_) => MenuView(store: store),
-              );
+      //     case '/menu':
+      //       final store = args?['store'] as String?;
+      //       return MaterialPageRoute(
+      //         settings: settings, // pass settings to display nav-address bar
+      //         builder: (_) => MenuView(store: store),
+      //       );
 
-            default:
-              return MaterialPageRoute(
-                  builder: (_) =>
-                      UnknownView('unknown route: ${settings.name}'));
-          }
-        }
+      //     default:
+      //       return MaterialPageRoute(
+      //           builder: (_) =>
+      //               UnknownView('unknown route: ${settings.name}'));
+      //   }
+      // }
 
-        // getx route
-        // getPages: [
-        //   GetPage(
-        //     name: '/',
-        //     page: () => TopView(),
-        //   ),
-        //   GetPage(name: '/test', page: () => TopView()),
-        //   GetPage(name: '/hb/:code', page: () => const ButtonView()),
-        //   GetPage(name: '/hm/:store', page: () => const MenuView()),
-        // ],
-        );
+      // getx route
+      // getPages: [
+      //   GetPage(
+      //     name: '/',
+      //     page: () => TopView(),
+      //   ),
+      //   GetPage(name: '/test', page: () => TopView()),
+      //   GetPage(name: '/hb/:code', page: () => const ButtonView()),
+      //   GetPage(name: '/hm/:store', page: () => const MenuView()),
+      // ],
+    );
   }
 }
 
-abstract class Router {
-  // derived classes implement these methods
-  bool matches(RouteSettings settings);
-  MaterialPageRoute route(RouteSettings settings);
-
+class Router {
   // helper for
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
-    final router =
-        routers.firstWhere((r) => r.maches(settings), orElse: () => null);
+    final Page? router = routers.firstWhere((r) => r.matches(settings));
     return router != null
-        ? router.route(settings)
+        ? MaterialPageRoute(
+            settings: settings, builder: (context) => router.page())
         : MaterialPageRoute(
             settings: settings,
             builder: (_) => UnknownView('unknown route: ${settings.name}'));
   }
 
-  static final routers = [];
+  static final List<Page> routers = [
+    Page(name: '/', page: () => TopView()),
+    Page(name: '/test', page: () => MenuView()),
+    Page(name: '/menu/:store', page: () => MenuView()),
+  ];
+}
+
+class Page {
+  final String name;
+  final Widget Function() page;
+  Page({required this.name, required this.page}) {
+    print('name: $name');
+    var parts = name.split('/').map((part) {
+      print('part name: [$part]');
+      if (part == null || part == '') return '';
+      if (part[0] == ':') {
+        var id = part.substring(1);
+        _var.add(id);
+        return '(?<$id>[^\\/]+)';
+      } else {
+        return part;
+      }
+    });
+    print('parts: $parts');
+    _regex = parts.join('/');
+    print('_regex: $_regex');
+  }
+
+  final List<String> _var = [];
+  late String _regex;
+
+  bool matches(RouteSettings settings) =>
+      settings.name != null ? settings.name!.startsWith(name) : false;
 }
 
 class Path {
   final String pattern;
   final Widget Function(BuildContext, String) builder;
   const Path(this.pattern, this.builder);
+  bool matches(RouteSettings settings) {
+    return settings.name != null ? settings.name!.startsWith(pattern) : false;
+  }
 }
 
 class RouteConfiguration {
