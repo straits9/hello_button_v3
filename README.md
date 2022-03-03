@@ -38,3 +38,18 @@ ref: flutter/samples/navigation_and_routing (github)
   ```
   $ flutter build --base-href <directory>
   ```
+
+## AWS S3 deploy
+- error시 처리부분을 error.html이 아니라 index.html로 변경 해준다. 이렇게 하면 SPA 지원이 된다.
+
+## Nginx deploy
+- root, sub directory 모두 설치 가능
+- nginx.config에 다음과 같이 추가
+  ```
+  ...
+  location /<sub directory>/ {
+    index  index.html index.thm;
+    try_files $uri /<sub directory>/index.html;
+  }
+  ...
+  ```
