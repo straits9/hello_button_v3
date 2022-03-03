@@ -13,7 +13,13 @@ class TopView extends StatelessWidget {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[const Text('헬로 버튼'), Text('v${_global.version} (${_global.build})')],
+          children: <Widget>[
+            InkWell(
+              onTap: () => Navigator.pushNamed(context, '/menu', arguments: { 'store': '10' }),
+              child: const Text('헬로 버튼'),
+            ),
+            Text('v${_global.version} (${_global.build})'),
+          ],
         ),
       ),
     );
