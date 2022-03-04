@@ -45,6 +45,7 @@ ref: flutter/samples/navigation_and_routing (github)
 - url/#/과 같은 형태를 제거 (url_strategy plugin)
 - 참고: [Understanding Flutter: deep links on the web](https://sellsbrothers.com/understanding-flutter-deep-links-on-the-web)
 - 참고: [Let’s make the Flutter Navigator 2](https://medium.com/flutter-community/lets-make-the-flutter-navigator-2-bc5953251c3e)
+- 참고: [Gallery web](https://github.com/aliyazdi75/gallery)
 
 ## AWS S3 deploy
 - error시 처리부분을 error.html이 아니라 index.html로 변경 해준다. 이렇게 하면 SPA 지원이 된다.

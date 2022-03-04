@@ -1,20 +1,33 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:flutter/services.dart';
 
-import 'package:get/get.dart';
+import 'package:hello_button_v3/app_state.dart';
+import 'package:hello_button_v3/router/delegate.dart';
+import 'package:hello_button_v3/router/dispatcher.dart';
+import 'package:hello_button_v3/router/pages.dart';
+import 'package:hello_button_v3/router/parser.dart';
 import 'package:hello_button_v3/services/global_service.dart';
-import 'package:hello_button_v3/views/button_view.dart';
-import 'package:hello_button_v3/views/menu_view.dart';
-import 'package:hello_button_v3/views/top_view.dart';
-import 'package:hello_button_v3/views/unknown_view.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
+import 'package:uni_links/uni_links.dart';
 import 'package:url_strategy/url_strategy.dart';
+
+bool _initialUriIsHandled = false;
 
 void main() async {
   setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Do something when app faced an error on release
+  FlutterError.onError = (details) {
+    FlutterError.dumpErrorToConsole(details);
+    // if (!kReleaseMode) {
+    //   exit(1);
+    // }
+  };
 
   await initServices();
   runApp(const MyApp());
@@ -29,176 +42,133 @@ Future<void> initServices() async {
   _global.build = info.buildNumber;
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class MyApp extends StatefulWidget {
+  final bool isTestMode;
+  final String? initialRoute;
+
+  const MyApp({
+    Key? key,
+    this.isTestMode = false,
+    this.initialRoute,
+  }) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
+  final appState = AppState();
+  late final AppRouterDelegate delegate;
+  final parser = AppParser();
+  late final AppBackButtonDispatcher backButtonDispatcher;
+
+  Uri? _initialUri;
+  Uri? _latestUri;
+  Object? _err;
+  StreamSubscription? _sub;
+
+  late StreamSubscription _linkSubscription;
+
+  _MyAppState() {
+    delegate = AppRouterDelegate(appState);
+    delegate.setNewRoutePath(SplashPageConfig);
+    backButtonDispatcher = AppBackButtonDispatcher(delegate);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // _handleIncomingLinks();
+    // _handleInitialUri();
+  }
+
+  @override
+  void dispose() {
+    if (_linkSubscription != null) _linkSubscription.cancel();
+    super.dispose();
+  }
+
+  /// Handle incoming links - the ones that the app will recieve from the OS
+  /// while already started.
+  void _handleIncomingLinks() {
+    if (!kIsWeb) {
+      // It will handle app links while the app is already started - be it in
+      // the foreground or in the background.
+      _sub = uriLinkStream.listen((Uri? uri) {
+        if (!mounted) return;
+        print('got uri: $uri');
+        setState(() {
+          _latestUri = uri;
+          _err = null;
+          delegate.parseRoute(uri!);
+        });
+      }, onError: (Object err) {
+        if (!mounted) return;
+        print('got err: $err');
+        setState(() {
+          _latestUri = null;
+          if (err is FormatException) {
+            _err = err;
+          } else {
+            _err = null;
+          }
+        });
+      });
+    }
+  }
+
+  /// Handle the initial Uri - the one the app was started with
+  ///
+  /// **ATTENTION**: `getInitialLink`/`getInitialUri` should be handled
+  /// ONLY ONCE in your app's lifetime, since it is not meant to change
+  /// throughout your app's life.
+  ///
+  /// We handle all exceptions, since it is called from initState.
+  Future<void> _handleInitialUri() async {
+    // In this example app this is an almost useless guard, but it is here to
+    // show we are not going to call getInitialUri multiple times, even if this
+    // was a weidget that will be disposed of (ex. a navigation route change).
+    if (!_initialUriIsHandled) {
+      _initialUriIsHandled = true;
+      print('_handleInitialUri called');
+
+      try {
+        final uri = await getInitialUri();
+        if (uri == null) {
+          print('no initial uri');
+        } else {
+          print('got initial uri: $uri');
+        }
+        if (!mounted) return;
+        setState(() => _initialUri = uri);
+      } on PlatformException {
+        // Platform messages may fail but we ignore the exception
+        print('falied to get initial uri');
+      } on FormatException catch (err) {
+        if (!mounted) return;
+        print('malformed initial uri');
+        setState(() {
+          _err = err;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     //return GetMaterialApp(
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return ChangeNotifierProvider<AppState>(
+      create: (_) => appState,
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'Hello Button',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        backButtonDispatcher: backButtonDispatcher,
+        routerDelegate: delegate,
+        routeInformationParser: parser,
       ),
-      // initialRoute: '/',
-      // home: TopView(),
-      // onGenerateRoute: RouteConfiguration.onGenerateRoute,
-      onGenerateRoute: AppRouter.onGenerateRoute,
-
-      // use onGenerateRoute:
-      // onGenerateRoute: (settings) {
-      //   final parts = settings.name?.split('?');
-      //   // only arguments support
-      //   // final args = settings.arguments as Map<String, dynamic>?;
-
-      //   // argument and query string supports
-      //   final args = settings.arguments != null
-      //       ? settings.arguments as Map<String, dynamic>?
-      //       : parts?.length == 2
-      //           ? Uri.splitQueryString(parts![1])
-      //           : null;
-      //   print('args: $parts, $args');
-
-      //   switch (parts?[0]) {
-      //     case '/':
-      //       return MaterialPageRoute(
-      //         settings: settings, // pass settings to display nav-address bar
-      //         builder: (_) => TopView(),
-      //       );
-
-      //     case '/menu':
-      //       final store = args?['store'] as String?;
-      //       return MaterialPageRoute(
-      //         settings: settings, // pass settings to display nav-address bar
-      //         builder: (_) => MenuView(store: store),
-      //       );
-
-      //     default:
-      //       return MaterialPageRoute(
-      //           builder: (_) =>
-      //               UnknownView('unknown route: ${settings.name}'));
-      //   }
-      // }
-
-      // getx route
-      // getPages: [
-      //   GetPage(
-      //     name: '/',
-      //     page: () => TopView(),
-      //   ),
-      //   GetPage(name: '/test', page: () => TopView()),
-      //   GetPage(name: '/hb/:code', page: () => const ButtonView()),
-      //   GetPage(name: '/hm/:store', page: () => const MenuView()),
-      // ],
     );
-  }
-}
-
-class AppRouter {
-  // helper for
-  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
-    print('enter: ${settings.toString()}');
-    final PageDef? router = routers.firstWhere((r) {
-      print('check page ${settings?.name}');
-      var ret = r.matches(settings);
-      return ret;
-    });
-    return router != null
-        ? MaterialPageRoute(
-            settings: settings, builder: (context) => router.page())
-        : MaterialPageRoute(
-            settings: settings,
-            builder: (_) => UnknownView('unknown route: ${settings.name}'));
-  }
-
-  static final List<PageDef> routers = [
-    PageDef(name: '/', page: () => TopView()),
-    PageDef(name: '/test', page: () => MenuView()),
-    PageDef(name: '/123/12', page: () => TopView()),
-    PageDef(name: '/menu/:store', page: () => MenuView()),
-  ];
-}
-
-class PageDef {
-  final String name;
-  final Widget Function() page;
-  PageDef({required this.name, required this.page}) {
-    print('name: $name');
-    var parts = name.split('/').map((part) {
-      print('part name: [$part]');
-      if (part == null || part == '') return '';
-      if (part[0] == ':') {
-        var id = part.substring(1);
-        _var.add(id);
-        print('variables: $_var');
-        // return '(?<$id>[^\\/]+)';
-        return '(?<$id>[^/]+)';
-      } else {
-        return part;
-      }
-    }).toList();
-    print('parts: $parts');
-    // _regex = parts.join('\\/');
-    _regex = parts.join('/');
-    print('skip check');
-    _regex = '$_regex\$';
-    print('_regex: $_regex');
-  }
-
-  final List<String> _var = [];
-  late String _regex;
-
-  bool matches(RouteSettings settings) {
-    print(
-        'page ${settings.name} compare to [$name] with regex string (r\'$_regex\')');
-    print('and variables ${_var.toString()}');
-
-    //final re = RegExp(r'${_regex}');
-    final re = RegExp(_regex);
-    final match = re.firstMatch(settings.name!);
-    print(match.toString());
-    return match == null ? false : true;
-    //return settings.name != null ? settings.name!.startsWith(name) : false;
-  }
-}
-
-class Path {
-  final String pattern;
-  final Widget Function(BuildContext, String) builder;
-  const Path(this.pattern, this.builder);
-  bool matches(RouteSettings settings) {
-    return settings.name != null ? settings.name!.startsWith(pattern) : false;
-  }
-}
-
-class RouteConfiguration {
-  static List<Path> paths = [
-    Path(r'^/', (context, match) => TopView()),
-    Path(r'^/test', (context, match) => MenuView()),
-    // Path('/', (context, match) => TopView()),
-    // Path('/test', (context, match) => MenuView()),
-  ];
-
-  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    print(settings);
-    for (Path path in paths) {
-      print('test ${settings.name} with ${path.pattern}');
-      final regExpPattern = RegExp(path.pattern);
-      print('regexp: $regExpPattern');
-      if (regExpPattern.hasMatch(settings.name!)) {
-        final firstMatch = regExpPattern.firstMatch(settings.name!);
-        print('firstMatch: $firstMatch');
-        final match =
-            (firstMatch?.groupCount == 1) ? firstMatch?.group(1) : null;
-        print('match: $match');
-        return MaterialPageRoute<void>(
-          builder: (context) => path.builder(context, match!),
-          settings: settings,
-        );
-      }
-    }
-
-    return null;
   }
 }
