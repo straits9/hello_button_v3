@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
       // initialRoute: '/',
       // home: TopView(),
       // onGenerateRoute: RouteConfiguration.onGenerateRoute,
-      onGenerateRoute: Router.onGenerateRoute,
+      onGenerateRoute: AppRouter.onGenerateRoute,
 
       // use onGenerateRoute:
       // onGenerateRoute: (settings) {
@@ -95,10 +95,11 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Router {
+class AppRouter {
   // helper for
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
-    final Page? router = routers.firstWhere((r) {
+    print('enter: ${settings.toString()}');
+    final PageDef? router = routers.firstWhere((r) {
       print('check page ${settings?.name}');
       var ret = r.matches(settings);
       return ret;
@@ -111,17 +112,18 @@ class Router {
             builder: (_) => UnknownView('unknown route: ${settings.name}'));
   }
 
-  static final List<Page> routers = [
-    Page(name: '/', page: () => TopView()),
-    Page(name: '/test', page: () => MenuView()),
-    Page(name: '/menu/:store', page: () => MenuView()),
+  static final List<PageDef> routers = [
+    PageDef(name: '/', page: () => TopView()),
+    PageDef(name: '/test', page: () => MenuView()),
+    PageDef(name: '/123/12', page: () => TopView()),
+    PageDef(name: '/menu/:store', page: () => MenuView()),
   ];
 }
 
-class Page {
+class PageDef {
   final String name;
   final Widget Function() page;
-  Page({required this.name, required this.page}) {
+  PageDef({required this.name, required this.page}) {
     print('name: $name');
     var parts = name.split('/').map((part) {
       print('part name: [$part]');
@@ -130,15 +132,15 @@ class Page {
         var id = part.substring(1);
         _var.add(id);
         print('variables: $_var');
-        return '(?<$id>[^\\/]+)';
-        //return '(?<$id>[^/]+)';
+        // return '(?<$id>[^\\/]+)';
+        return '(?<$id>[^/]+)';
       } else {
         return part;
       }
     }).toList();
     print('parts: $parts');
-    _regex = parts.join('\\/');
-    //_regex = parts.join('/');
+    // _regex = parts.join('\\/');
+    _regex = parts.join('/');
     print('skip check');
     _regex = '$_regex\$';
     print('_regex: $_regex');
