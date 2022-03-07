@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'pages.dart';
 
 class AppParser extends RouteInformationParser<PageConfiguration> {
+  AppParser() {
+    print('appParser (constructor)');
+  }
+
   @override
   Future<PageConfiguration> parseRouteInformation(
       RouteInformation routeInformation) async {
+    print('appParser (parse): $routeInformation');
     final uri = Uri.parse(routeInformation.location!);
     final state = routeInformation.state;
     print('appParser (parse): uri = $uri, state = $state');

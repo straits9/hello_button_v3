@@ -23,7 +23,9 @@ class PageConfiguration {
     required this.path,
     required this.uiPage,
     this.currentPageAction,
-  });
+  }) {
+    print('pageconf: $key');
+  }
 
   @override
   String toString() => 'page($key, $path, $uiPage)';

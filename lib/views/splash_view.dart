@@ -39,9 +39,9 @@ class _SplashViewState extends State<SplashView> {
     super.didChangeDependencies();
     if (!_initialized) {
       _initialized = true;
-      Timer(const Duration(milliseconds: 2000), () {
-        appState.setSplashFinished();
-      });
+      // Timer(const Duration(milliseconds: 2000), () {
+      //   appState.setSplashFinished();
+      // });
     }
   }
 }

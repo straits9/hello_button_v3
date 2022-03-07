@@ -17,9 +17,13 @@ class AppRouterDelegate extends RouterDelegate<PageConfiguration>
 
   AppRouterDelegate(this.appState) : navigatorKey = GlobalKey() {
     print('appDelegate (constructor):');
-    appState.addListener(() {
-      notifyListeners();
-    });
+    appState.addListener(notifyListeners);
+  }
+
+  @override
+  void dispose() {
+    appState.removeListener(notifyListeners);
+    super.dispose();
   }
 
   /// Getter for a list that cannot be changed
@@ -33,46 +37,8 @@ class AppRouterDelegate extends RouterDelegate<PageConfiguration>
       _pages.last.arguments as PageConfiguration;
 
   @override
-  Widget build(BuildContext context) {
-    print('appDelegate (build):');
-    return Navigator(
-      key: navigatorKey,
-      onPopPage: _onPopPage,
-      pages: buildPages(),
-    );
-  }
-
-  bool _onPopPage(Route<dynamic> route, result) {
-    final didPop = route.didPop(result);
-    if (!didPop) {
-      return false;
-    }
-    if (canPop()) {
-      pop();
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  void _removePage(MaterialPage page) {
-    if (page != null) {
-      _pages.remove(page);
-    }
-  }
-
-  void pop() {
-    if (canPop()) {
-      _removePage(_pages.last as MaterialPage);
-    }
-  }
-
-  bool canPop() {
-    return _pages.length > 1;
-  }
-
-  @override
   Future<bool> popRoute() {
+    print('appDelegate (popRoute):');
     if (canPop()) {
       _removePage(_pages.last as MaterialPage);
       return Future.value(true);
@@ -80,83 +46,9 @@ class AppRouterDelegate extends RouterDelegate<PageConfiguration>
     return Future.value(false);
   }
 
-  MaterialPage _createPage(Widget child, PageConfiguration pageConfig) {
-    return MaterialPage(
-        child: child,
-        key: ValueKey(pageConfig.key),
-        name: pageConfig.path,
-        arguments: pageConfig);
-  }
-
-  void _addPageData(Widget child, PageConfiguration pageConfig) {
-    _pages.add(
-      _createPage(child, pageConfig),
-    );
-  }
-
-  void addPage(PageConfiguration pageConfig) {
-    print('appDelegate (addpage): $pageConfig');
-    final shouldAddPage = _pages.isEmpty ||
-        (_pages.last.arguments as PageConfiguration).uiPage !=
-            pageConfig.uiPage;
-    if (shouldAddPage) {
-      switch (pageConfig.uiPage) {
-        case Pages.Top:
-          _addPageData(TopView(), TopPageConfig);
-          break;
-        case Pages.Splash:
-          _addPageData(const SplashView(), SplashPageConfig);
-          break;
-        case Pages.Menu:
-          if (pageConfig.currentPageAction != null) {
-            _addPageData(const MenuView(), MenuPageConfig);
-          }
-          break;
-        case Pages.Button:
-          if (pageConfig.currentPageAction != null) {
-            _addPageData(pageConfig.currentPageAction!.widget!, pageConfig);
-          }
-          break;
-        default:
-          break;
-      }
-    }
-  }
-
-  void replace(PageConfiguration newRoute) {
-    if (_pages.isNotEmpty) {
-      _pages.removeLast();
-    }
-    addPage(newRoute);
-  }
-
-  void setPath(List<MaterialPage> path) {
-    _pages.clear();
-    _pages.addAll(path);
-  }
-
-  void replaceAll(PageConfiguration newRoute) {
-    print('appDelegate (replaceAll): $newRoute');
-    setNewRoutePath(newRoute);
-  }
-
-  void push(PageConfiguration newRoute) {
-    addPage(newRoute);
-  }
-
-  void pushWidget(Widget child, PageConfiguration newRoute) {
-    _addPageData(child, newRoute);
-  }
-
-  void addAll(List<PageConfiguration> routes) {
-    _pages.clear();
-    routes.forEach((route) {
-      addPage(route);
-    });
-  }
-
   @override
   Future<void> setNewRoutePath(PageConfiguration configuration) {
+    print('appDelegate (setnewRoutePath): ${configuration.key}');
     final shouldAddPage = _pages.isEmpty ||
         (_pages.last.arguments as PageConfiguration).uiPage !=
             configuration.uiPage;
@@ -164,27 +56,17 @@ class AppRouterDelegate extends RouterDelegate<PageConfiguration>
       _pages.clear();
       addPage(configuration);
     }
-    return SynchronousFuture(null);
+    return SynchronousFuture<void>(null);
   }
 
-  void _setPageAction(PageAction action) {
-    print('appDeleage (_setPageAction): $action');
-    switch (action.page?.uiPage) {
-      case Pages.Top:
-        TopPageConfig.currentPageAction = action;
-        break;
-      case Pages.Splash:
-        SplashPageConfig.currentPageAction = action;
-        break;
-      case Pages.Menu:
-        MenuPageConfig.currentPageAction = action;
-        break;
-      case Pages.Button:
-        ButtonPageConfig.currentPageAction = action;
-        break;
-      default:
-        break;
-    }
+  @override
+  Widget build(BuildContext context) {
+    print('appDelegate (build):');
+    return Navigator(
+      key: navigatorKey,
+      onPopPage: _onPopPage,
+      pages: buildPages(),
+    );
   }
 
   List<Page> buildPages() {
@@ -225,6 +107,132 @@ class AppRouterDelegate extends RouterDelegate<PageConfiguration>
     return List.of(_pages);
   }
 
+  bool _onPopPage(Route<dynamic> route, result) {
+    final didPop = route.didPop(result);
+    if (!didPop) {
+      return false;
+    }
+    if (canPop()) {
+      pop();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void _removePage(MaterialPage page) {
+    if (page != null) {
+      _pages.remove(page);
+    }
+  }
+
+  void pop() {
+    if (canPop()) {
+      _removePage(_pages.last as MaterialPage);
+    }
+  }
+
+  bool canPop() {
+    return _pages.length > 1;
+  }
+
+  MaterialPage _createPage(Widget child, PageConfiguration pageConfig) {
+    return MaterialPage(
+        child: child,
+        key: ValueKey(pageConfig.key),
+        name: pageConfig.path,
+        arguments: pageConfig);
+  }
+
+  void _addPageData(Widget child, PageConfiguration pageConfig) {
+    _pages.add(
+      _createPage(child, pageConfig),
+    );
+  }
+
+  void addPage(PageConfiguration pageConfig) {
+    print('appDelegate (addpage): $pageConfig');
+    final shouldAddPage = _pages.isEmpty ||
+        (_pages.last.arguments as PageConfiguration).uiPage !=
+            pageConfig.uiPage;
+    if (shouldAddPage) {
+      switch (pageConfig.uiPage) {
+        case Pages.Top:
+          _addPageData(TopView(), TopPageConfig);
+          break;
+        case Pages.Splash:
+          _addPageData(const SplashView(), SplashPageConfig);
+          break;
+        case Pages.Menu:
+          _addPageData(const MenuView(), MenuPageConfig);
+          // if (pageConfig.currentPageAction != null) {
+          //   _addPageData(const MenuView(), MenuPageConfig);
+          // }
+          break;
+        case Pages.Button:
+          _addPageData(pageConfig.currentPageAction!.widget!, pageConfig);
+          // if (pageConfig.currentPageAction != null) {
+          //   _addPageData(pageConfig.currentPageAction!.widget!, pageConfig);
+          // }
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  void replace(PageConfiguration newRoute) {
+    if (_pages.isNotEmpty) {
+      _pages.removeLast();
+    }
+    addPage(newRoute);
+  }
+
+  void setPath(List<MaterialPage> path) {
+    _pages.clear();
+    _pages.addAll(path);
+  }
+
+  void replaceAll(PageConfiguration newRoute) {
+    print('appDelegate (replaceAll): $newRoute');
+    setNewRoutePath(newRoute);
+  }
+
+  void push(PageConfiguration newRoute) {
+    addPage(newRoute);
+  }
+
+  void pushWidget(Widget child, PageConfiguration newRoute) {
+    _addPageData(child, newRoute);
+  }
+
+  void addAll(List<PageConfiguration> routes) {
+    _pages.clear();
+    routes.forEach((route) {
+      addPage(route);
+    });
+  }
+
+  void _setPageAction(PageAction action) {
+    print('appDeleage (_setPageAction): $action');
+    switch (action.page?.uiPage) {
+      case Pages.Top:
+        TopPageConfig.currentPageAction = action;
+        break;
+      case Pages.Splash:
+        SplashPageConfig.currentPageAction = action;
+        break;
+      case Pages.Menu:
+        MenuPageConfig.currentPageAction = action;
+        break;
+      case Pages.Button:
+        ButtonPageConfig.currentPageAction = action;
+        break;
+      default:
+        break;
+    }
+  }
+
   void parseRoute(Uri uri) {
     print('appDelegate (parseRoute): uri = $uri');
     if (uri.pathSegments.isEmpty) {
@@ -246,9 +254,9 @@ class AppRouterDelegate extends RouterDelegate<PageConfiguration>
         case 'splash':
           replaceAll(SplashPageConfig);
           break;
-        // case 'menu':
-        //   replaceAll(MenuPageConfig);
-        //   break;
+        case 'menu':
+          replaceAll(MenuPageConfig);
+          break;
         case 'button':
           replaceAll(ButtonPageConfig);
           break;
