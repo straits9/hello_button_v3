@@ -21,7 +21,7 @@ class TopView extends StatelessWidget {
               //     arguments: {'store': '10'}),
 
               // passing parameter with query string
-              onTap: () => Navigator.pushNamed(context, '/menu?store=10'),
+              onTap: () => Navigator.pushNamed(context, '/menu/10'),
               child: const Text('헬로 버튼'),
             ),
             Text('v${_global.version} (${_global.build})'),

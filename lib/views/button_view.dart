@@ -7,8 +7,35 @@ import 'package:encrypt/encrypt.dart' as EncryptPack;
 import 'package:crypto/crypto.dart' as CryptoPack;
 import 'dart:convert' as ConvertPack;
 
-class ButtonView extends StatelessWidget {
+import 'package:hello_button_v3/config.dart';
+
+class ButtonView extends StatefulWidget {
   const ButtonView({Key? key}) : super(key: key);
+
+  @override
+  State<ButtonView> createState() => _ButtonViewState();
+}
+
+class _ButtonViewState extends State<ButtonView> {
+  String? codeStr = Get.parameters['code'];
+  late int ts;
+  late String payload = '';
+
+  @override
+  void initState() {
+    if (codeStr == null || codeStr == 'test') {
+      // get current timestamp
+      ts = DateTime.now().millisecondsSinceEpoch;
+      codeStr = '${ts.toString()} E2:5A:F4:49:F4:19';
+    }
+
+    try {
+      payload = AesHelper.extractPayload(codeStr!);
+    } catch (e) {
+      print('decryption error $e');
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +44,8 @@ class ButtonView extends StatelessWidget {
         child: Column(
           children: [
             Text('button view'),
-            Text('${AesHelper.enc('1646139849460 E2:5A:F4:49:F4:19')}'),
-            Text(': ${AesHelper.extractPayload(Get.parameters['code']!)}'),
+            Text('code: $codeStr'),
+            Text('payload: $payload'),
           ],
         ),
       ),
@@ -31,80 +58,27 @@ const KEY_SIZE = 32; // 32 byte key for AES-256
 const ITERATION_COUNT = 1000;
 
 class AesHelper {
-  static String extractPayload(String payload) {
-    String strKey = 'Z9HF6BED46L1D3O3C3DEBE8U26T74FNY';
-    String strIv = 'hEl0loF1aCt3oRy3';
-
-    //var iv = CryptoPack.sha256
-    //    .convert(ConvertPack.utf8.encode(strIv))
-    //    .toString()
-    //    .substring(0, 16);
-    //var key = CryptoPack.sha256
-    //    .convert(ConvertPack.utf8.encode(strKey))
-    //    .toString()
-    //    .substring(0, 32);
-    EncryptPack.IV ivObj = EncryptPack.IV.fromUtf8(strIv);
-    EncryptPack.Key keyObj = EncryptPack.Key.fromUtf8(strKey);
+  static String extractPayload(String code) {
+    EncryptPack.IV ivObj = EncryptPack.IV.fromUtf8(AppConfig.iv);
+    EncryptPack.Key keyObj = EncryptPack.Key.fromUtf8(AppConfig.key);
 
     final encrypter = EncryptPack.Encrypter(
         EncryptPack.AES(keyObj, mode: EncryptPack.AESMode.cbc));
-    var payloadUtf8 = hexDecode(payload).toString();
-    print('payload: $payload, $payloadUtf8');
-    //String firstBase64Decoding =
-    //    String.fromCharCodes(ConvertPack.hex.decode(payload));
-    //String ttt = String.fromCharCodes(ConvertPack.utf8.decode(payload))
-    //final decrypted = encrypter.decrypt(
-    //    EncryptPack.Encrypted.fromBase64(firstBase64Decoding),
-    //    iv: ivObj);
-    final decrypted = encrypter
-        .decrypt(EncryptPack.Encrypted.fromUtf8(payloadUtf8), iv: ivObj);
+    final decrypted =
+        encrypter.decrypt(EncryptPack.Encrypted.fromBase16(code), iv: ivObj);
     return decrypted;
-    //return '';
   }
 
   static String enc(String payload) {
-    String strKey = 'Z9HF6BED46L1D3O3C3DEBE8U26T74FNY';
-    String strIv = 'hEl0loF1aCt3oRy3';
-
-    //var iv = CryptoPack.sha256
-    //    .convert(ConvertPack.utf8.encode(strIv))
-    //    .toString()
-    //    .substring(0, 16);
-    //var key = CryptoPack.sha256
-    //    .convert(ConvertPack.utf8.encode(strKey))
-    //    .toString()
-    //    .substring(0, 32);
-    EncryptPack.IV ivObj = EncryptPack.IV.fromUtf8(strIv);
-    EncryptPack.Key keyObj = EncryptPack.Key.fromUtf8(strKey);
+    EncryptPack.IV ivObj = EncryptPack.IV.fromUtf8(AppConfig.iv);
+    EncryptPack.Key keyObj = EncryptPack.Key.fromUtf8(AppConfig.key);
 
     final encrypter = EncryptPack.Encrypter(
         EncryptPack.AES(keyObj, mode: EncryptPack.AESMode.cbc));
 
     final encrypted = encrypter.encrypt(payload, iv: ivObj);
-    print(encrypted.bytes);
-    return encrypted.bytes.fold('',
-        (value, element) => value + element.toRadixString(16).padLeft(2, '0'));
+    return encrypted.base16;
   }
-
-  //static const CBC_MODE = "CBC";
-
-  //static Uint8List deriveKey(dynamic password,
-  //    {String salt = '',
-  //    int iterationCount = ITERATION_COUNT,
-  //    int derivedKeyLength = KEY_SIZE}) {
-  //  if (password == null || password.isEpmpty) {
-  //    throw ArgumentError('password must not be empty');
-  //  }
-
-  //  if (password is String) {
-  //    password = createUint8ListFromString(password);
-  //  }
-  //}
-
-  //static String decrypt(String password, String ciphertext,
-  //    {String mode = CBC_MODE}) {
-  //  Uint8List derivedKey = deriveLey(password);
-  //}
 }
 
 Uint8List createUint8ListFromString(String s) {
