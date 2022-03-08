@@ -1,6 +1,6 @@
 'use strict';
 
-var mysql = require('mysql');
+var mysql = require('mysql')
 var pool_mariadb = mysql.createPool({
 	host				:'hf-dev.c1dsfak07rhb.ap-northeast-2.rds.amazonaws.com',
 	port				: 3306,
