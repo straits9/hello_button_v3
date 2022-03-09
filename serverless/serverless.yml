@@ -17,11 +17,11 @@ service: hbtn-api-v2
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
-frameworkVersion: '2'
+frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs14.x
   stage: dev
   region: ap-northeast-2
   profile: bell
@@ -30,13 +30,13 @@ provider:
 
 functions:
   getButtons:
-    handler: api/get_buttons.buttons
+    handler: api/get_buttons.handler
     memorySize: 128
     description: Hello Button get Button list for a store
     events:
       - http:
           path: api/buttons
-          method: get
+          method: post
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
