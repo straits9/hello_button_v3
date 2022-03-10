@@ -1,8 +1,13 @@
 'use strict';
 
+// TODO: module화를 해서 cache 부분은 handler 밖으로 분리할것
+// TODO: DB connection caching할것
+// TODO: query file operation을 const string으로 변경할것
+
 var mysql = require('mysql');
 var async = require('async');
 var fs = require('fs');
+const sql = require('sql/sql');
 
 var pool_mariadb = mysql.createPool({
 	host				:'hf-dev.c1dsfak07rhb.ap-northeast-2.rds.amazonaws.com',
@@ -59,6 +64,16 @@ pool_mariadb.queryFile = (file, ...params) => {
       }
       resolve(res);
     })
+  });
+}
+
+pool_mariadb.querySync = (sql, ...params) => {
+  this.query(sql, params, (err, res) => {
+    if (err) {
+      reject(err);
+      return;
+    }
+    resolve(res);
   });
 }
 
@@ -121,7 +136,7 @@ const getparams = (event, keys = []) => {
         if (key.slice(-1) == '!') {
           key = key.slice(0, -1);
           required = true;
-        };
+        }
 
         if (key in body) ps[key] = body[key];
         else {
@@ -134,19 +149,29 @@ const getparams = (event, keys = []) => {
     throw new AppException(500, 500, e.message);
   }
   return ps;
-}
+};
 
-const resp = (obj) => {
+const response = (data, status = 200) => {
+  if (typeof data == 'string')
+    return {
+      statusCode: status,
+      body: data
+    };
+
   return {
-    statusCode: 200,
-    body: JSON.stringify(obj, null, 2)
-  }
-}
+    statusCode: status,
+    body: JSON.stringify(data, null, 2)
+  };
+};
+
+const error = (code, msg, status) => {
+  return response({ code: code, message: msg }, status);
+};
 
 
 
 module.exports.echo = async event => {
-  return resp({
+  return response({
     message: 'Go Serverless v1.0! Your function executed successfully!',
     input: event,
   });
@@ -155,28 +180,10 @@ module.exports.echo = async event => {
 module.exports.getButtons = async (event, context) => {
   try {
     var param = getparams(event, ['mac!']);
+    var resp = await pool_mariadb.query(FIND_STORE, [param.mac]);
+    return response(resp);
   } catch (e) {
-    return 
-  }
-  var mac;
-
-  if (event.body) {
-    let body = JSON.parse(event.body);
-    if (body.mac) {
-      mac = body.mac;
-    } else {
-      callback(JSON.stringify({
-        errorType: "Not Found",
-        httpStatus: 404,
-        requestId: context.awsRequestId
-      }));
-    }
-  } else {
-      callback(JSON.stringify({
-        errorType: "Not Found",
-        httpStatus: 404,
-        requestId: context.awsRequestId
-      }));
+    return error(e.code, e.message, e.statusCode);
   }
 
   async.waterfall([
