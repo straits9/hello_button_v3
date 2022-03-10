@@ -30,12 +30,20 @@ provider:
 
 functions:
   getButtons:
-    handler: api/get_buttons.handler
+    handler: api/hellobutton.getButtons
     memorySize: 128
     description: Hello Button get Button list for a store
     events:
       - http:
           path: api/buttons
+          method: post
+  echo:
+    handler: api/hellobutton.echo
+    memorySize: 128
+    description: Hello Button develop echo
+    events:
+      - http:
+          path: api/echo
           method: post
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
