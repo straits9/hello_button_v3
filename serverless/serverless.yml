@@ -28,11 +28,22 @@ provider:
   apiGateway:
     shouldStartNameWithService: true
 
+package:
+  exclude:
+    - ".*/**"
+    - "*.txt"
+    - "test/"
+
 functions:
   getButtons:
     handler: api/hellobutton.getButtons
     memorySize: 128
     description: Hello Button get Button list for a store
+    environment:
+      DB_HOST: hf-dev.c1dsfak07rhb.ap-northeast-2.rds.amazonaws.com
+      DB_NAME: hellobell_v2
+      DB_USER: hellobell
+      DB_PASS: gntlr?znzl
     events:
       - http:
           path: api/buttons
@@ -41,9 +52,6 @@ functions:
     handler: api/hellobutton.echo
     memorySize: 128
     description: Hello Button develop echo
-    environment:
-      DB_HOST: hf-dev.c1dsfak07rhb.ap-northeast-2.rds.amazonaws.com
-      DB_NAME: hellobell_v2
     events:
       - http:
           path: api/echo

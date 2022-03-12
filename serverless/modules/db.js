@@ -7,8 +7,8 @@ const fs = require('fs');
 const pool_mariadb = mysql.createPool({
 	host				: process.env.DB_HOST,
 	port				: 3306,
-	user				: 'hellobell',
-	password			: 'gntlr?znzl',
+	user				: process.env.DB_USER,
+	password			: process.env.DB_PASS,
 	database			: process.env.DB_NAME,
 	connectionLimit		: 100,
 	//connectTimeout      : 60 * 60 * 1000,
