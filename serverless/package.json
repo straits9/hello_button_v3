@@ -16,7 +16,6 @@
   "author": "Paul Choi",
   "license": "ISC",
   "dependencies": {
-    "async": "^3.2.3",
     "mysql": "^2.18.1"
   }
 }

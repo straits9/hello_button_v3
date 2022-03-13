@@ -27,26 +27,40 @@ provider:
   profile: bell
   apiGateway:
     shouldStartNameWithService: true
+  environment:
+    DB_HOST: ${self:custom.DBHost}
+    DB_NAME: ${self:custom.DBName}
+    DB_USER: ${self:custom.DBUser}
+    DB_PASS: ${self:custom.DBPass}
 
 package:
-  exclude:
-    - ".*/**"
-    - "*.txt"
-    - "test/"
+  patterns:
+    - '.*/**'
+    - '*.txt'
+    - '!test/**'
+
+custom:
+  DBHost: hf-dev.c1dsfak07rhb.ap-northeast-2.rds.amazonaws.com
+  DBName: hellobell_v2
+  DBUser: hellobell
+  DBPass: gntlr?znzl
 
 functions:
   getButtons:
-    handler: api/hellobutton.getButtons
+    handler: api/hellobutton.getButtonsByMac
     memorySize: 128
     description: Hello Button get Button list for a store
-    environment:
-      DB_HOST: hf-dev.c1dsfak07rhb.ap-northeast-2.rds.amazonaws.com
-      DB_NAME: hellobell_v2
-      DB_USER: hellobell
-      DB_PASS: gntlr?znzl
     events:
       - http:
           path: api/buttons
+          method: post
+  getButtonsBySID:
+    handler: api/hellobutton.getButtonsByStore
+    memorySize: 128
+    description: Hello Button get Button list by store id
+    events:
+      - http:
+          path: api/buttonsbyid
           method: post
   echo:
     handler: api/hellobutton.echo
