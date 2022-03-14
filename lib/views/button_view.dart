@@ -17,6 +17,7 @@ class _ButtonViewState extends State<ButtonView> {
 
   @override
   void initState() {
+    print('param code: $codeStr');
     if (codeStr == null || codeStr == 'test') {
       // get current timestamp
       ts = DateTime.now().millisecondsSinceEpoch;
@@ -46,4 +47,3 @@ class _ButtonViewState extends State<ButtonView> {
     );
   }
 }
-

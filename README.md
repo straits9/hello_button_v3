@@ -40,6 +40,13 @@ ref: flutter/samples/navigation_and_routing (github)
   $ flutter build --base-href <directory> --web
   ```
 
+## adSense 추가
+- 아직 테스트 하지 않음.
+- pc@hellofactory.co.kr 계정으로 adsense 설정
+- ref: [AdSense at Flutter Web application](https://stackoverflow.com/questions/57909791/is-it-possible-to-insert-google-adsense-at-flutter-web-application)
+- ref: [AdMob support for Flutter web](https://stackoverflow.com/questions/67560795/is-there-admob-support-for-flutter-web)
+- adMob은 app에 지원 flutter web은 adsense 연결
+
 ## Web page용 Deeplink 제작
 - Getx와 같은 depencency를 사용하지 않고 만드는 방법
 - url/#/과 같은 형태를 제거 (url_strategy plugin)
