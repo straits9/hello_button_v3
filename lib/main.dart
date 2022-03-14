@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import './app_useget.dart';
 import 'package:hello_button_v3/services/global_service.dart';
@@ -17,6 +18,10 @@ void main() async {
     //   exit(1);
     // }
   };
+
+  // rotation to landscape block
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
   await initServices();
   runApp(const MypGetApp());

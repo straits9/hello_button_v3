@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hello_button_v3/views/unknown_view.dart';
 
 import 'views/top_view.dart';
 import 'views/button_view.dart';
@@ -27,14 +28,25 @@ class _MypGetAppState extends State<MypGetApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/',
+      // initialRoute: '/',
       getPages: [
-        GetPage(name: '/', page: () => TopView()),
+        // GetPage(
+        //     name: '/', page: () => TopView(), transition: Transition.fadeIn),
         // GetPage(name: '/splash', page: () => SplashView()),
         // TODO: /hb/test 경우 응답을 하지 않음.
-        GetPage(name: '/hb/:code', page: () => const ButtonView()),
-        GetPage(name: '/menu/:store', page: () => const MenuView()),
+        GetPage(
+            name: '/hb/:code',
+            page: () => const ButtonView(),
+            transition: Transition.noTransition),
+        GetPage(
+            name: '/menu/:store',
+            page: () => const MenuView(),
+            transition: Transition.noTransition),
       ],
+      unknownRoute: GetPage(name: '/404', page: () => UnknownView('msg')),
+      // onUnknownRoute: (settings) {
+      //   return MaterialPageRoute(builder: (_) => UnknownView('msg1'));
+      // },
     );
   }
 }
