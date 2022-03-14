@@ -1,0 +1,21 @@
+{
+  "name": "hbtn_serverless",
+  "version": "2.0.0",
+  "description": "Hello Button serverless v2",
+  "main": "index.js",
+  "scripts": {
+    "deploy:dev": "sls deploy -s dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "hello",
+    "button",
+    "v2",
+    "serverless"
+  ],
+  "author": "Paul Choi",
+  "license": "ISC",
+  "dependencies": {
+    "mysql": "^2.18.1"
+  }
+}
