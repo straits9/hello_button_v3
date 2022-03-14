@@ -57,8 +57,8 @@ class _ButtonViewState extends State<ButtonView>
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: [SystemUiOverlay.top]);
+    //SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+    //    overlays: [SystemUiOverlay.top]);
     List data = TestData['buttons'];
     final double w = MediaQuery.of(context).size.width;
     final double h = MediaQuery.of(context).size.height;
@@ -71,8 +71,7 @@ class _ButtonViewState extends State<ButtonView>
             child: correct_payload
                 ? GridView.builder(
                     padding: EdgeInsets.all(mainSpacing),
-                    gridDelegate:
-                        SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisSpacing: mainSpacing,
                       crossAxisSpacing: mainSpacing,
@@ -372,7 +371,8 @@ const Map<String, dynamic> TestData = {
     {
       "no": 32,
       "name": "VALET",
-      "image": "https://bo.hellobell.net/images/vbell/31/list_photo_parking.png",
+      "image":
+          "https://bo.hellobell.net/images/vbell/31/list_photo_parking.png",
       "desc_img": null,
       "division": "G",
       "tx": null,
