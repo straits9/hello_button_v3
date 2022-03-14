@@ -1,7 +1,10 @@
+import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '/helpers/aes_helper.dart';
 
@@ -64,61 +67,184 @@ class _ButtonViewState extends State<ButtonView>
     final double h = MediaQuery.of(context).size.height;
     final double mainSpacing = w * .10;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Container(
-            child: correct_payload
-                ? GridView.builder(
-                    padding: EdgeInsets.all(mainSpacing),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: mainSpacing,
-                      crossAxisSpacing: mainSpacing,
-                      childAspectRatio: .9,
-                    ),
-                    itemCount: data.length,
-                    itemBuilder: (context, index) => LayoutBuilder(
-                      builder:
-                          (BuildContext context, BoxConstraints constraints) {
-                        print('tile width: ${constraints.maxWidth}');
-                        return Column(
-                          children: [
-                            Container(
-                              height: constraints.maxWidth - 2,
-                              width: constraints.maxWidth,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.black,
-                                  style: BorderStyle.solid,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(20.0),
-                                child: Image.network(
-                                  data[index]['image'],
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                              // child: GridTile(
-                              //   child: Center(child: Text(index.toString())),
-                              //   footer: Center(child: Text(data[index]['name'])),
-                              // ),
+    return Material(
+      child: Container(
+        // background image
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            fit: BoxFit.cover,
+            repeat: ImageRepeat.repeat,
+            image: NetworkImage(
+                'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3/background/full/blue.jpeg'),
+            //image: NetworkImage(
+            //    'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3/background/tile/square.jpeg'),
+          ),
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          //backgroundColor: Colors.white,
+          body: CupertinoPageScaffold(
+            backgroundColor: Colors.transparent,
+            child: SizedBox.expand(
+              child: SafeArea(
+                bottom: false,
+                child: Container(
+                    child: correct_payload
+                        ? GridView.builder(
+                            padding: EdgeInsets.all(mainSpacing),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: mainSpacing * .2,
+                              crossAxisSpacing: mainSpacing,
+                              childAspectRatio: .7,
                             ),
-                            Text(data[index]['name']),
-                          ],
-                        );
-                      },
-                    ),
-                  )
-                : null),
+                            itemCount: data.length,
+                            itemBuilder: (context, index) => LayoutBuilder(
+                              builder: (BuildContext context,
+                                  BoxConstraints constraints) {
+                                print('tile width: ${constraints.maxWidth}');
+                                return Column(
+                                  children: [
+                                    InkWell(
+                                      child: Container(
+                                        height: constraints.maxWidth - 2,
+                                        width: constraints.maxWidth,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Colors.grey.shade300,
+                                            style: BorderStyle.solid,
+                                            width: 0.5,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.grey.withOpacity(0.5),
+                                              spreadRadius: 5,
+                                              blurRadius: 7,
+                                              offset: Offset(0,
+                                                  3), // changes position of shadow
+                                            ),
+                                          ],
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                          child: Image.network(
+                                            data[index]['image'],
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                        // child: GridTile(
+                                        //   child: Center(child: Text(index.toString())),
+                                        //   footer: Center(child: Text(data[index]['name'])),
+                                        // ),
+                                      ),
+                                      onTap: () =>
+                                          showCupertinoModalBottomSheet(
+                                        expand: false,
+                                        context: context,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (context) => ModalFit(),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.only(top: 10.0),
+                                      child: Text(
+                                        (data[index]['name'] as String)
+                                            .replaceAll('<BR>', '\n'),
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w500,
+                                          //color: Color.computeLuminance() < 0.5
+                                          //    ? Colors.white
+                                          //    : Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          )
+                        : null),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  void openBottmSheet() {}
+  void openBottmSheet() {
+    Get.bottomSheet(
+      Column(
+        children: [
+          const SizedBox(height: 20),
+          const Center(
+            child: Text(
+              'Bottom Sheet',
+              style: TextStyle(fontSize: 18),
+            ),
+          ),
+          OutlinedButton(
+              onPressed: () {
+                Get.back();
+              },
+              child: const Text('Close'))
+        ],
+      ),
+      backgroundColor: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    );
+  }
+}
+
+class ModalFit extends StatelessWidget {
+  const ModalFit({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+        child: SafeArea(
+      top: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            title: Text('Edit'),
+            leading: Icon(Icons.edit),
+            onTap: () => Navigator.of(context).pop(),
+          ),
+          ListTile(
+            title: Text('Copy'),
+            leading: Icon(Icons.content_copy),
+            onTap: () => Navigator.of(context).pop(),
+          ),
+          ListTile(
+            title: Text('Cut'),
+            leading: Icon(Icons.content_cut),
+            onTap: () => Navigator.of(context).pop(),
+          ),
+          ListTile(
+            title: Text('Move'),
+            leading: Icon(Icons.folder_open),
+            onTap: () => Navigator.of(context).pop(),
+          ),
+          ListTile(
+            title: Text('Delete'),
+            leading: Icon(Icons.delete),
+            onTap: () => Navigator.of(context).pop(),
+          )
+        ],
+      ),
+    ));
+  }
 }
 
 const Map<String, dynamic> TestData = {
