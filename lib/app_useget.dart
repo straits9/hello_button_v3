@@ -36,7 +36,7 @@ class _MypGetAppState extends State<MypGetApp> {
         // TODO: /hb/test 경우 응답을 하지 않음.
         GetPage(
             name: '/hb/:code',
-            page: () => const ButtonView(),
+            page: () => ButtonView(),
             transition: Transition.noTransition),
         GetPage(
             name: '/menu/:store',

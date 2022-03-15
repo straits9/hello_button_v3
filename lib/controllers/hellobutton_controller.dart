@@ -6,22 +6,20 @@ import 'package:hello_button_v3/services/remote_services.dart';
 // https://github.com/afzalali15/shopx/tree/master/lib/controllers 참고중..
 
 class HelloButtonController extends GetxController {
-  final isLoading = false.obs;
+  final isLoading = true.obs;
   final site = Site().obs;
-  final buttons = ButtonBase().obs;
 
   @override
   void onInit() {
-    fetchStoreButton();
     super.onInit();
   }
 
-  void fetchStoreButton() async {
+  void fetchStoreButton(String mac) async {
     try {
       isLoading(true);
-      var resp = await RemoteServices.fetchButtons();
+      var resp = await RemoteServices.fetchButtons(mac);
       if (resp != null) {
-        buttons.value = resp;
+        site.value = resp;
       }
     } finally {
       isLoading(false);

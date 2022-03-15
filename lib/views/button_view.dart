@@ -4,14 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hello_button_v3/controllers/hellobutton_controller.dart';
 import 'package:hello_button_v3/models/button.dart';
 import 'package:hello_button_v3/models/site.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '/helpers/aes_helper.dart';
 
+const Map<String, String> prefixes = {
+  'http://v2.hellobell.net':
+      'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3',
+  'http://files.hellobell.net':
+      'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net',
+  'https://bo.hellobell.net':
+      'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3'
+};
+
 class ButtonView extends StatefulWidget {
-  const ButtonView({Key? key}) : super(key: key);
+  ButtonView({Key? key}) : super(key: key);
 
   @override
   State<ButtonView> createState() => _ButtonViewState();
@@ -25,6 +35,8 @@ class _ButtonViewState extends State<ButtonView>
   late String payload = '';
   late bool use_timeout = false;
   late bool correct_payload = false;
+  final HelloButtonController buttonController =
+      Get.put(HelloButtonController());
 
   @override
   void initState() {
@@ -49,6 +61,9 @@ class _ButtonViewState extends State<ButtonView>
 
     try {
       payload = AesHelper.extractPayload(codeStr!);
+      var payloads = payload.split(' ');
+      print('mac: ${payloads[1]}');
+      buttonController.fetchStoreButton(payloads[1]);
       correct_payload = true;
     } catch (e) {
       print('decryption error $e');
@@ -58,12 +73,12 @@ class _ButtonViewState extends State<ButtonView>
       });
     }
 
-    var site = Site.fromJson(TestData['store']);
-    print('site: $site');
-    if (site.useButton) {
-      var btn = ButtonBase.fromJson(TestData);
-      print('buttons: $btn');
-    }
+    //var site = Site.fromJson(TestData['store']);
+    //print('site: $site');
+    //if (site.useButton) {
+    //  var btn = ButtonBase.fromJson(TestData);
+    //  print('buttons: $btn');
+    //}
     super.initState();
   }
 
@@ -98,88 +113,32 @@ class _ButtonViewState extends State<ButtonView>
               child: SafeArea(
                 bottom: false,
                 child: Container(
-                    child: correct_payload
-                        ? GridView.builder(
-                            padding: EdgeInsets.all(mainSpacing),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: mainSpacing * .2,
-                              crossAxisSpacing: mainSpacing,
-                              childAspectRatio: .7,
-                            ),
-                            itemCount: data.length,
-                            itemBuilder: (context, index) => LayoutBuilder(
-                              builder: (BuildContext context,
-                                  BoxConstraints constraints) {
-                                print('tile width: ${constraints.maxWidth}');
-                                return Column(
-                                  children: [
-                                    InkWell(
-                                      child: Container(
-                                        height: constraints.maxWidth - 2,
-                                        width: constraints.maxWidth,
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: Colors.grey.shade300,
-                                            style: BorderStyle.solid,
-                                            width: 0.5,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(20.0),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.grey.withOpacity(0.5),
-                                              spreadRadius: 5,
-                                              blurRadius: 7,
-                                              offset: Offset(0,
-                                                  3), // changes position of shadow
-                                            ),
-                                          ],
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(20.0),
-                                          child: Image.network(
-                                            imageUrlConvert(
-                                                data[index]['image']),
-                                            fit: BoxFit.fill,
-                                          ),
-                                        ),
-                                        // child: GridTile(
-                                        //   child: Center(child: Text(index.toString())),
-                                        //   footer: Center(child: Text(data[index]['name'])),
-                                        // ),
-                                      ),
-                                      onTap: () =>
-                                          showCupertinoModalBottomSheet(
-                                        expand: false,
-                                        context: context,
-                                        backgroundColor: Colors.transparent,
-                                        builder: (context) => ModalFit(),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.only(top: 10.0),
-                                      child: Text(
-                                        (data[index]['name'] as String)
-                                            .replaceAll('<BR>', '\n'),
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500,
-                                          //color: Color.computeLuminance() < 0.5
-                                          //    ? Colors.white
-                                          //    : Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          )
-                        : null),
+                  child: Obx(() {
+                    if (buttonController.isLoading.value) {
+                      return Center(child: CircularProgressIndicator());
+                    } else {
+                      print(buttonController.site.value);
+                      if (correct_payload) {
+                        return GridView.builder(
+                          padding: EdgeInsets.all(mainSpacing),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: mainSpacing * .2,
+                            crossAxisSpacing: mainSpacing,
+                            childAspectRatio: .7,
+                          ),
+                          itemCount: buttonController
+                              .site.value.button?.buttons?.length,
+                          itemBuilder: (context, index) => buttonTile(
+                              buttonController.site.value.button!.buttons!,
+                              index),
+                        );
+                      }
+                      return Center(child: Text('none'));
+                    }
+                  }),
+                ),
               ),
             ),
           ),
@@ -188,18 +147,80 @@ class _ButtonViewState extends State<ButtonView>
     );
   }
 
+  LayoutBuilder buttonTile(List<Button> data, int index) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        print('tile width: ${constraints.maxWidth}');
+        return Column(
+          children: [
+            InkWell(
+              child: Container(
+                height: constraints.maxWidth - 2,
+                width: constraints.maxWidth,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey.shade300,
+                    style: BorderStyle.solid,
+                    width: 0.5,
+                  ),
+                  borderRadius: BorderRadius.circular(20.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20.0),
+                  child: Image.network(
+                    imageUrlConvert(data[index].image!),
+                    fit: BoxFit.fill,
+                  ),
+                ),
+                // child: GridTile(
+                //   child: Center(child: Text(index.toString())),
+                //   footer: Center(child: Text(data[index]['name'])),
+                // ),
+              ),
+              onTap: () => showCupertinoModalBottomSheet(
+                expand: false,
+                context: context,
+                backgroundColor: Colors.transparent,
+                builder: (context) => ModalFit(),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.only(top: 10.0),
+              child: Text(
+                (data[index].label as String).replaceAll('<BR>', '\n'),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  //color: Color.computeLuminance() < 0.5
+                  //    ? Colors.white
+                  //    : Colors.black,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // 이전 version과 compatibility를 유지하기 위해서 S3 bucket <files.hellobell.net>에
   // vue /images directory를 옮겨놓고 이를 secure한 uri로 변경한다.
   String imageUrlConvert(String uri) {
-    if (uri.startsWith('http://v2.hellobell.net')) {
-      return uri.replaceFirst('http://v2.hellobell.net',
-          'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3');
-    } else if (uri.startsWith('http://files.hellobell.net')) {
-      return uri.replaceFirst('http://files.hellobell.net',
-          'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net');
-    } else if (uri.startsWith('https://bo.hellobell.net')) {
-      return uri.replaceFirst('https://bo.hellobell.net',
-          'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3');
+    var matches = prefixes.keys
+        .firstWhere((key) => uri.startsWith(key), orElse: () => '');
+
+    if (matches != '') {
+      var modified = uri.replaceFirst(matches, prefixes[matches]!);
+      print('conv url: $uri => $modified');
+      return modified;
     }
     return uri;
   }
