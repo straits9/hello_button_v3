@@ -1,14 +1,10 @@
 class Site {
-  int no;
-  String name;
+  int? no;
+  String? name;
   bool useButton;
   String? locale;
 
-  Site(
-      {required this.no,
-      required this.name,
-      required this.useButton,
-      this.locale});
+  Site({this.no, this.name, this.useButton = false, this.locale});
 
   Site.fromJson(Map<String, dynamic> json)
       : no = json['store_no'],

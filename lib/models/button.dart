@@ -1,27 +1,27 @@
 import 'dart:convert';
 
 class ButtonBase {
-  String theme; // hello button page theme
+  String? theme; // hello button page theme
   String? background; // hello button page background
   String? msgProcess; // process message
   String? msgComplete; // complete message
   int urlChangePeriod; // url change period (second)
 
-  int appNo; // registered hellobutton app no
-  String apiKey; // api key for follow operation
-  DateTime registeredAt; // hello button register date
+  int? appNo; // registered hellobutton app no
+  String? apiKey; // api key for follow operation
+  DateTime? registeredAt; // hello button register date
   String? locale;
   List<Button>? buttons; // button list (if exists)
 
   ButtonBase({
-    required this.theme,
+    this.theme,
     this.background,
     this.msgProcess,
     this.msgComplete,
-    required this.urlChangePeriod,
-    required this.appNo,
-    required this.apiKey,
-    required this.registeredAt,
+    this.urlChangePeriod = 0,
+    this.appNo,
+    this.apiKey,
+    this.registeredAt,
     this.locale,
     this.buttons,
   });
