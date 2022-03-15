@@ -6,7 +6,7 @@ const db = require('../modules/db');
 const lambda = require('../modules/lambda');
 const FIND_STORE = '\
 SELECT b.store_no, s.name, s.use_hellobutton_yn, b.serial, b.no AS bell_no, getBeaconSection(b.minor) AS section_no, sec.name AS section_name, getBeaconTable(b.minor) AS table_no, \
-       env.theme, env.noti_p_msg, env.noti_c_msg, env.url_chg_period, eapp.app_no, eapp.api_key, eapp.reg_dt \
+       env.theme, env.back_no, env.noti_p_msg, env.noti_c_msg, env.url_chg_period, eapp.app_no, eapp.api_key, eapp.reg_dt \
   FROM tbbell b \
     LEFT OUTER JOIN tbstore s ON b.store_no = s.no \
     LEFT OUTER JOIN tbhb env ON b.store_no = env.store_no AND env.del_yn = "N" \
@@ -15,11 +15,11 @@ SELECT b.store_no, s.name, s.use_hellobutton_yn, b.serial, b.no AS bell_no, getB
  WHERE mac = ? LIMIT 1;';
 const GET_STORE = '\
 SELECT s.no AS store_no, s.name, s.use_hellobutton_yn, \
-       env.theme, env.noti_p_msg, env.noti_c_msg, env.url_chg_period, eapp.app_no, eapp.api_key, eapp.reg_dt \
+       env.theme, env.back_no, env.noti_p_msg, env.noti_c_msg, env.url_chg_period, eapp.app_no, eapp.api_key, eapp.reg_dt \
   FROM tbstore s \
     LEFT OUTER JOIN tbhb env ON s.no = env.store_no AND env.del_yn = "N" \
     LEFT OUTER JOIN tbextapp eapp ON eapp.store_no = s.no AND eapp.name = "hellobutton" AND eapp.del_yn = "N" \
- WHERE no = 35 LIMIT 1;';
+ WHERE no = ? LIMIT 1;';
 const GET_BUTTONS = '\
 SELECT b.no, b.name, b.image, b.desc_img, b.division, b.tx, b.message, b.group_no, b.url, \
        b.type, b.title, b.text, b.items, b.flow_rule, b.prompt_type, b.prompt_length, b.el, \

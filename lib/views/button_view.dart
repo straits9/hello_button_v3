@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hello_button_v3/models/button.dart';
+import 'package:hello_button_v3/models/site.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '/helpers/aes_helper.dart';
@@ -52,8 +54,15 @@ class _ButtonViewState extends State<ButtonView>
       print('decryption error $e');
       // initState에서 routing 하기
       SchedulerBinding.instance?.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/');
+        Navigator.pushReplacementNamed(context, '/404');
       });
+    }
+
+    var site = Site.fromJson(TestData['store']);
+    print('site: $site');
+    if (site.useButton) {
+      var btn = ButtonBase.fromJson(TestData);
+      print('buttons: $btn');
     }
     super.initState();
   }
@@ -133,7 +142,8 @@ class _ButtonViewState extends State<ButtonView>
                                           borderRadius:
                                               BorderRadius.circular(20.0),
                                           child: Image.network(
-                                            data[index]['image'],
+                                            imageUrlConvert(
+                                                data[index]['image']),
                                             fit: BoxFit.fill,
                                           ),
                                         ),
@@ -155,7 +165,7 @@ class _ButtonViewState extends State<ButtonView>
                                       child: Text(
                                         (data[index]['name'] as String)
                                             .replaceAll('<BR>', '\n'),
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w500,
                                           //color: Color.computeLuminance() < 0.5
@@ -176,6 +186,22 @@ class _ButtonViewState extends State<ButtonView>
         ),
       ),
     );
+  }
+
+  // 이전 version과 compatibility를 유지하기 위해서 S3 bucket <files.hellobell.net>에
+  // vue /images directory를 옮겨놓고 이를 secure한 uri로 변경한다.
+  String imageUrlConvert(String uri) {
+    if (uri.startsWith('http://v2.hellobell.net')) {
+      return uri.replaceFirst('http://v2.hellobell.net',
+          'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3');
+    } else if (uri.startsWith('http://files.hellobell.net')) {
+      return uri.replaceFirst('http://files.hellobell.net',
+          'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net');
+    } else if (uri.startsWith('https://bo.hellobell.net')) {
+      return uri.replaceFirst('https://bo.hellobell.net',
+          'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3');
+    }
+    return uri;
   }
 
   void openBottmSheet() {
