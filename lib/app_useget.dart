@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hello_button_v3/views/button/button1_view.dart';
 import 'package:hello_button_v3/views/order/order_view.dart';
 import 'package:hello_button_v3/views/unknown_view.dart';
 
@@ -37,7 +38,8 @@ class _MypGetAppState extends State<MypGetApp> {
         // TODO: /hb/test 경우 응답을 하지 않음.
         GetPage(
             name: '/hb/:code',
-            page: () => ButtonView(),
+            // page: () => ButtonView(),
+            page: () => const Button1View(),
             transition: Transition.noTransition),
         GetPage(
             name: '/menu/:store',
