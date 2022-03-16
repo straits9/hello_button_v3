@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hello_button_v3/controllers/hellobutton_controller.dart';
+import 'package:hello_button_v3/controllers/transaction_controller.dart';
 import 'package:hello_button_v3/models/button.dart';
 import 'package:hello_button_v3/models/site.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -35,8 +36,10 @@ class _ButtonViewState extends State<ButtonView>
   late String payload = '';
   late bool use_timeout = false;
   late bool correct_payload = false;
-  final HelloButtonController buttonController =
-      Get.put(HelloButtonController());
+  // final HelloButtonController buttonController =
+  //     Get.put(HelloButtonController());
+  final TransactionController buttonController =
+      Get.put(TransactionController());
 
   @override
   void initState() {
@@ -63,7 +66,7 @@ class _ButtonViewState extends State<ButtonView>
       payload = AesHelper.extractPayload(codeStr!);
       var payloads = payload.split(' ');
       print('mac: ${payloads[1]}');
-      buttonController.fetchStoreButton(payloads[1]);
+      buttonController.fetchButtons(payloads[1]);
       correct_payload = true;
     } catch (e) {
       print('decryption error $e');
@@ -114,10 +117,10 @@ class _ButtonViewState extends State<ButtonView>
                 bottom: false,
                 child: Container(
                   child: Obx(() {
-                    if (buttonController.isLoading.value) {
+                    if (buttonController.dataAvailable) {
                       return Center(child: CircularProgressIndicator());
                     } else {
-                      print(buttonController.site.value);
+                      print(buttonController.site);
                       if (correct_payload) {
                         return GridView.builder(
                           padding: EdgeInsets.all(mainSpacing),
@@ -128,11 +131,9 @@ class _ButtonViewState extends State<ButtonView>
                             crossAxisSpacing: mainSpacing,
                             childAspectRatio: .7,
                           ),
-                          itemCount: buttonController
-                              .site.value.button?.buttons?.length,
+                          itemCount: buttonController.buttons.length,
                           itemBuilder: (context, index) => buttonTile(
-                              buttonController.site.value.button!.buttons!,
-                              index),
+                              buttonController.buttons, index),
                         );
                       }
                       return Center(child: Text('none'));

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hello_button_v3/views/order/order_view.dart';
 import 'package:hello_button_v3/views/unknown_view.dart';
 
 // import 'views/top_view.dart';
@@ -40,7 +41,7 @@ class _MypGetAppState extends State<MypGetApp> {
             transition: Transition.noTransition),
         GetPage(
             name: '/menu/:store',
-            page: () => const MenuView(),
+            page: () => const OrderView(),
             transition: Transition.noTransition),
       ],
       unknownRoute: GetPage(name: '/404', page: () => UnknownView('msg')),
