@@ -34,6 +34,7 @@ SELECT b.no, b.name, b.image, b.desc_img, b.division, b.tx, b.message, b.group_n
 
 
 module.exports.echo = async event => {
+  console.log(event);
   return lambda.response({
     message: 'Go Serverless v1.0! Your function executed successfully!',
     input: event,

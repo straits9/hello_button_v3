@@ -54,6 +54,7 @@ functions:
       - http:
           path: api/buttons
           method: post
+          cors: true
   getButtonsBySID:
     handler: api/hellobutton.getButtonsByStore
     memorySize: 128
@@ -70,6 +71,16 @@ functions:
       - http:
           path: api/echo
           method: post
+          cors: true
+  echoGet:
+    handler: api/hellobutton.echo
+    memorySize: 128
+    description: Hello Button develop echo GET
+    events:
+      - http:
+          path: api/echo
+          method: get
+          cors: true
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details

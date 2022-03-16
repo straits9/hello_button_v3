@@ -11,7 +11,9 @@ class Site {
 
   factory Site.fromJson(Map<String, dynamic> json) {
     var siteInfo = json['store'];
+    print('siteInfo: $siteInfo');
     var button = ButtonBase.fromJson(json);
+    print('button base: $button');
     return Site(
       no: siteInfo['store_no'],
       name: siteInfo['name'],

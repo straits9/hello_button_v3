@@ -40,6 +40,11 @@ ref: flutter/samples/navigation_and_routing (github)
   $ flutter build --base-href <directory> --web
   ```
 
+## web request CORS 처리
+- serverless lambda + API gateway의 경우, serverless 설정에서 cors: true로 만든다. (API gateway 설정)
+- 추가로 lambda server code에서 response시 header에 'Access-Control-Allow-Origin': '*'를 추가해야한다.
+- serverless에서 cors: true 하였기 때문에 (결국 이것은 api gateway의 cors enable이다) content-type이 json으로 실행해도 된다.
+
 ## adSense 추가
 - 아직 테스트 하지 않음.
 - pc@hellofactory.co.kr 계정으로 adsense 설정

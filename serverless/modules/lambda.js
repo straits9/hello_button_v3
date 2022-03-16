@@ -33,12 +33,20 @@ const response = (data, status = 200) => {
   if (typeof data == 'string')
     return {
       statusCode: status,
-      body: data
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
+      body: data,
     };
 
   return {
     statusCode: status,
-    body: JSON.stringify(data, null, 2)
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
+    },
+    body: JSON.stringify(data, null, 2),
   };
 };
 
