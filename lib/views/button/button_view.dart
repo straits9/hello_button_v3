@@ -32,14 +32,40 @@ class _ButtonViewState extends State<ButtonView>
     with SingleTickerProviderStateMixin {
   late AnimationController animationController;
   String? codeStr = Get.parameters['code'];
-  late int ts;
-  late String payload = '';
+  final int ts = DateTime.now().millisecondsSinceEpoch;
+  final HelloButtonController buttonController =
+      Get.put(HelloButtonController());
+  // final TransactionController buttonController =
+  //     Get.put(TransactionController());
   late bool use_timeout = false;
   late bool correct_payload = false;
-  // final HelloButtonController buttonController =
-  //     Get.put(HelloButtonController());
-  final TransactionController buttonController =
-      Get.put(TransactionController());
+
+  //
+  // encrypt된 parameter 분석
+  //
+  String _decodeParam(String? param) {
+    String _encodedParam, _mac;
+    if (param == null || param == 'develop') {
+      // get current timestamp
+      _encodedParam = AesHelper.enc('${ts.toString()} 00:00:00:00:00:12');
+    } else {
+      _encodedParam = param;
+    }
+
+    // decode 진행
+    try {
+      var payloads = AesHelper.extractPayload(_encodedParam).split(' ');
+      _mac = payloads[1];
+      return _mac;
+    } catch (e) {
+      print('decryption error $e');
+      // initState에서 routing 하기
+      SchedulerBinding.instance?.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/404');
+      });
+    }
+    return '';
+  }
 
   @override
   void initState() {
@@ -55,33 +81,7 @@ class _ButtonViewState extends State<ButtonView>
         });
     }
 
-    // parameter decoding
-    if (codeStr == null || codeStr == 'develop') {
-      // get current timestamp
-      ts = DateTime.now().millisecondsSinceEpoch;
-      codeStr = AesHelper.enc('${ts.toString()} 00:00:00:00:00:12');
-    }
-
-    try {
-      payload = AesHelper.extractPayload(codeStr!);
-      var payloads = payload.split(' ');
-      print('mac: ${payloads[1]}');
-      buttonController.fetchButtons(payloads[1]);
-      correct_payload = true;
-    } catch (e) {
-      print('decryption error $e');
-      // initState에서 routing 하기
-      SchedulerBinding.instance?.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/404');
-      });
-    }
-
-    //var site = Site.fromJson(TestData['store']);
-    //print('site: $site');
-    //if (site.useButton) {
-    //  var btn = ButtonBase.fromJson(TestData);
-    //  print('buttons: $btn');
-    //}
+    var mac = _decodeParam(codeStr);
     super.initState();
   }
 
@@ -132,8 +132,8 @@ class _ButtonViewState extends State<ButtonView>
                             childAspectRatio: .7,
                           ),
                           itemCount: buttonController.buttons.length,
-                          itemBuilder: (context, index) => buttonTile(
-                              buttonController.buttons, index),
+                          itemBuilder: (context, index) =>
+                              buttonTile(buttonController.buttons, index),
                         );
                       }
                       return Center(child: Text('none'));

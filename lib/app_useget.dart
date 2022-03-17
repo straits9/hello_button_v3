@@ -5,7 +5,7 @@ import 'package:hello_button_v3/views/order/order_view.dart';
 import 'package:hello_button_v3/views/unknown_view.dart';
 
 // import 'views/top_view.dart';
-import 'views/button_view.dart';
+import 'views/button/button_view.dart';
 import 'views/menu_view.dart';
 
 class MypGetApp extends StatefulWidget {
@@ -39,7 +39,7 @@ class _MypGetAppState extends State<MypGetApp> {
         GetPage(
             name: '/hb/:code',
             // page: () => ButtonView(),
-            page: () => const Button1View(),
+            page: () => ButtonView(),
             transition: Transition.noTransition),
         GetPage(
             name: '/menu/:store',

@@ -10,12 +10,11 @@ class RemoteServices {
 
   static Future<Site?> fetchButtons(String mac) async {
     var response = await http.post(URL('/dev/api/buttons'),
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'mac': mac}));
     if (response.statusCode == 200) {
       var jsonString = response.body;
-      print('http response: $jsonString');
-      return null;
-      //return Site.fromJson(json.decode(jsonString) as Map<String, dynamic>);
+      return Site.fromJson(json.decode(jsonString) as Map<String, dynamic>);
     } else {
       print('http err resp: $response');
       return null;

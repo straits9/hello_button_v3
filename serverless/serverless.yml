@@ -32,6 +32,17 @@ provider:
     DB_NAME: ${self:custom.DBName}
     DB_USER: ${self:custom.DBUser}
     DB_PASS: ${self:custom.DBPass}
+    WSCONN_DB: ${self:resources.Resources.WsConnectionTable.Properties.TableName}
+  # you can add statements to the Lambda function's IAM Role here
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "execute-api:ManageConnections"
+      Resource: "*"
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:*"
+      Resource: "*"
 
 package:
   patterns:
@@ -81,6 +92,28 @@ functions:
           path: api/echo
           method: get
           cors: true
+
+  connect:
+    handler: api/websocket.connect
+    memorySize: 128
+    description: Web socket connect to test
+    events:
+      - websocket:
+          route: $connect
+  disconnect:
+    handler: api/websocket.disconnect
+    memorySize: 128
+    description: Web socket disconnect to test
+    events:
+      - websocket:
+          route: $disconnect
+  broadcast:
+    handler: api/websocket.broadcast
+    memorySize: 128
+    description: Web socket default to test
+    events:
+      - websocket:
+          route: $default
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
@@ -122,13 +155,18 @@ functions:
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+resources:
+  Resources:
+    WsConnectionTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: WsConnectionId
+        AttributeDefinitions:
+          - AttributeName: connectionId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: connectionId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
