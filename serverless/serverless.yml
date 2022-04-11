@@ -19,6 +19,9 @@ service: hbtn-api-v2
 # Check out our docs for more details
 frameworkVersion: '3'
 
+plugins:
+  - serverless-multi-regional-plugin
+
 provider:
   name: aws
   runtime: nodejs14.x

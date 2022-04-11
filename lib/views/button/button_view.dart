@@ -33,10 +33,10 @@ class _ButtonViewState extends State<ButtonView>
   late AnimationController animationController;
   String? codeStr = Get.parameters['code'];
   final int ts = DateTime.now().millisecondsSinceEpoch;
-  final HelloButtonController buttonController =
-      Get.put(HelloButtonController());
-  // final TransactionController buttonController =
-  //     Get.put(TransactionController());
+  // final HelloButtonController buttonController =
+  //     Get.put(HelloButtonController());
+  final TransactionController buttonController =
+      Get.put(TransactionController());
   late bool use_timeout = false;
   late bool correct_payload = false;
 
