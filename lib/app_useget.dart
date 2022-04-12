@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hello_button_v3/views/button/button1_view.dart';
 import 'package:hello_button_v3/views/order/order_view.dart';
+import 'package:hello_button_v3/views/top_view.dart';
 import 'package:hello_button_v3/views/unknown_view.dart';
 
 // import 'views/top_view.dart';
@@ -32,8 +33,11 @@ class _MypGetAppState extends State<MypGetApp> {
       ),
       // initialRoute: '/',
       getPages: [
-        // GetPage(
-        //     name: '/', page: () => TopView(), transition: Transition.fadeIn),
+        GetPage(
+            name: '/',
+            page: () => TopView(),
+            transition: Transition.fadeIn
+        ),
         // GetPage(name: '/splash', page: () => SplashView()),
         // TODO: /hb/test 경우 응답을 하지 않음.
         GetPage(

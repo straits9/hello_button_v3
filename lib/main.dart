@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_storage/get_storage.dart';
 
 import './app_useget.dart';
 import 'package:hello_button_v3/services/global_service.dart';
@@ -10,6 +11,8 @@ import 'package:url_strategy/url_strategy.dart';
 void main() async {
   setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
+
+  await GetStorage.init();
 
   // Do something when app faced an error on release
   FlutterError.onError = (details) {
