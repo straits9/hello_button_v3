@@ -14,10 +14,11 @@ class AuthController extends GetxController with CacheManager {
     await saveToken(token);
   }
 
-  void checkLoginStatus() {
+  bool checkLoginStatus() {
     final token = getToken();
     if (token != null) {
       isLogged.value = true;
     }
+    return isLogged.value;
   }
 }

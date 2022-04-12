@@ -66,7 +66,14 @@ ref: flutter/samples/navigation_and_routing (github)
 - 참고: [AWS를 이용해 SPA 호스팅하기](https://wormwlrm.github.io/2020/11/15/SPA-hosting-via-AWS.html)
 
 ## Nginx deploy
+- mac brew 설치시 nginx 위치
+  ```
+  /usr/local/etc/nginx/nginx.conf
+  ```
 - root, sub directory 모두 설치 가능
+  ```
+  $ flutter build web --base-href
+  ```
 - nginx.config에 다음과 같이 추가
   ```
   ...
@@ -76,3 +83,6 @@ ref: flutter/samples/navigation_and_routing (github)
   }
   ...
   ```
+
+## Flutter web icon 설정
+- refer: [How to configure icon for my flutter web application?](https://stackoverflow.com/questions/56745525/how-to-configure-icon-for-my-flutter-web-application)

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+//const url =
+//    'https://vkmawdwa6h.execute-api.ap-northeast-2.amazonaws.com/dev/graphql/v3';
+const url = 'http://localhost:3000/dev/graphql/v3';
+
 class GraphqlConfig {
-  static final HttpLink _httpLink =
-      HttpLink('https://vkmawdwa6h.execute-api.ap-northeast-2.amazonaws.com/dev/graphql/v3');
+  static final HttpLink _httpLink = HttpLink(url);
 
   //
   // for Graphql Auth
