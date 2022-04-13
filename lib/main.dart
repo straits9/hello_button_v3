@@ -14,10 +14,10 @@ void main() async {
   // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
   //   statusBarColor: Colors.transparent, // transparent status bar
   // ));
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.white, // navigation bar color
-    statusBarColor: Colors.pink, // status bar color
-  ));
+  //SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+  //  systemNavigationBarColor: Colors.white, // navigation bar color
+  //  statusBarColor: Colors.pink, // status bar color
+  //));
 
   await GetStorage.init();
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hello_button_v3/views/button/button1_view.dart';
+import 'package:hello_button_v3/views/hellobutton_view.dart';
 import 'package:hello_button_v3/views/order/order_view.dart';
 import 'package:hello_button_v3/views/top_view.dart';
 import 'package:hello_button_v3/views/unknown_view.dart';
@@ -29,21 +31,27 @@ class _MypGetAppState extends State<MypGetApp> {
       debugShowCheckedModeBanner: false,
       title: 'Hello Button',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        //primarySwatch: Colors.blue,
+        appBarTheme: const AppBarTheme(
+          //backwardsCompatibility: false,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+        ),
       ),
       // initialRoute: '/',
       getPages: [
         GetPage(
-            name: '/',
-            page: () => TopView(),
-            transition: Transition.fadeIn
-        ),
+            name: '/', page: () => TopView(), transition: Transition.fadeIn),
         // GetPage(name: '/splash', page: () => SplashView()),
         // TODO: /hb/test 경우 응답을 하지 않음.
         GetPage(
+            name: '/hb',
+            // page: () => ButtonView(),
+            page: () => HelloButtonView(),
+            transition: Transition.noTransition),
+        GetPage(
             name: '/hb/:code',
             // page: () => ButtonView(),
-            page: () => ButtonView(),
+            page: () => HelloButtonView(),
             transition: Transition.noTransition),
         GetPage(
             name: '/menu/:store',

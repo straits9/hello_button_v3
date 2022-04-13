@@ -13,6 +13,7 @@ class TopView extends StatelessWidget {
   final GlobalService _global = GlobalService();
   final AuthController _auth = Get.put(AuthController());
 
+  // 초기 login check
   Future<void> initializeSettings() async {
     _auth.checkLoginStatus();
     await Future.delayed(const Duration(milliseconds: 500));
@@ -26,19 +27,16 @@ class TopView extends StatelessWidget {
       future: initializeSettings(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
+          // login check를 진행중이면 circular progress 진행
           return const WaitingView();
-          // } else if (snapshot.connectionState == ConnectionState.done) {
         } else {
           if (snapshot.hasError) {
             return page(context);
           }
           return Obx(() {
+            // login 상태에 따른 분기
             return _auth.isLogged.value
                 ? const ButtonGridView()
-                // ? GraphQLProvider(
-                //     client: GraphqlConfig.initClient(),
-                //     child: page(context),
-                //   )
                 : const LoginView();
           });
         }
@@ -46,6 +44,7 @@ class TopView extends StatelessWidget {
     );
   }
 
+  // 특수 case에 대한 표시 widget
   Widget page(context) {
     final AuthController _auth = Get.find();
 
