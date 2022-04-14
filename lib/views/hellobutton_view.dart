@@ -1,3 +1,4 @@
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -22,6 +23,10 @@ class _HelloButtonViewState extends State<HelloButtonView> {
     codeStr = Get.parameters['code'];
     mac = _decodeParam(codeStr);
     print('mac: $mac');
+
+    html.window.onBeforeUnload.listen((event) async {
+      print('leave current page');
+    });
   }
 
   @override

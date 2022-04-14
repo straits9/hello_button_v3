@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:hello_button_v3/controllers/auth_controller.dart';
 import 'package:hello_button_v3/services/global_service.dart';
-import 'package:hello_button_v3/widgets/button_grid_widget.dart';
-import 'package:hello_button_v3/widgets/login_widget.dart';
-import 'package:hello_button_v3/widgets/waiting_widget.dart';
-
-// ref: https://github.com/ozkayas/auth_manager/blob/master/lib/login/login_view.dart
+import 'package:hello_button_v3/views/buttongrid_view.dart';
+import 'package:hello_button_v3/views/login_view.dart';
+import 'package:hello_button_v3/views/waiting_view.dart';
 
 class TopView extends StatelessWidget {
   TopView({Key? key}) : super(key: key);

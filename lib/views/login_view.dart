@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hello_button_v3/controllers/auth_controller.dart';
+import 'package:hello_button_v3/controllers/login_controller.dart';
 import 'package:hello_button_v3/widgets/background.dart';
 
 class LoginView extends StatefulWidget {
@@ -12,9 +13,11 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  final GlobalKey<FormState> formKey = GlobalKey();
+  final GlobalKey<FormState> _formKey = GlobalKey();
   final AuthController _auth = Get.find();
+  final LoginController _controller = Get.put(LoginController());
   late String error;
+  bool _autoValidate = false;
 
   TextEditingController useridCtrl = TextEditingController();
   TextEditingController passwordCtrl = TextEditingController();
@@ -53,8 +56,9 @@ class _LoginViewState extends State<LoginView> {
   // login 전담 처리 form
   Form loginForm(Size size) {
     return Form(
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      key: formKey,
+      autovalidateMode:
+          _autoValidate ? AutovalidateMode.always : AutovalidateMode.disabled,
+      key: _formKey,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -135,13 +139,17 @@ class _LoginViewState extends State<LoginView> {
                 //padding:
                 //    const EdgeInsets.symmetric(horizontal: 100, vertical: 20),
               ),
-              onPressed: () async {
-                // if (formKey.currentState?.validate() ?? false) {
-                if (formKey.currentState!.validate()) {
-                  // await _viewModel.loginUser(emailCtr.text, passwordCtr.text);
-                  _auth.login('token');
-                }
-              },
+              onPressed: _controller.state is LoginLoading
+                  ? () {}
+                  : _onLoginButtonPressed,
+              // onPressed: () async {
+              //   // if (_formKey.currentState?.validate() ?? false) {
+              //   if (_formKey.currentState!.validate()) {
+              //     // await _viewModel.loginUser(emailCtr.text, passwordCtr.text);
+              //     _auth.login('token');
+              //     _controller.
+              //   }
+              // },
               child: const Text(
                 'Login',
                 textAlign: TextAlign.center,
@@ -152,6 +160,16 @@ class _LoginViewState extends State<LoginView> {
         ],
       ),
     );
+  }
+
+  _onLoginButtonPressed() {
+    if (_formKey.currentState!.validate()) {
+      _controller.login(useridCtrl.text, passwordCtrl.text);
+    } else {
+      setState(() {
+        _autoValidate = true;
+      });
+    }
   }
 }
 
