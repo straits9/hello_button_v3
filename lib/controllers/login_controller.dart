@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hello_button_v3/controllers/auth_controller.dart';
+import 'package:hello_button_v3/controllers/auth_service.dart';
 
 class LoginController extends GetxController {
   final AuthController _authController = Get.find();

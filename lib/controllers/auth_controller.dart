@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:hello_button_v3/controllers/auth_service.dart';
 import 'package:hello_button_v3/services/cache_service.dart';
 
 enum Role {
@@ -22,7 +23,8 @@ class AuthController extends GetxController with CacheManager {
     removeToken();
   }
 
-  void login(String? token) async {
+  void login(String username, String password) async {
+    final user = await AuthService.signIn(username, password);
     isLogged.value = true;
     await saveToken(token);
   }

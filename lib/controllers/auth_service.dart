@@ -1,37 +1,34 @@
 import 'package:get/get.dart';
+import 'package:hello_button_v3/controllers/auth_controller.dart';
 
 // ref: https://github.com/vince-nyanga/flutter_getx_authentication/blob/main/src/lib/features/authentication/authentication_service.dart
-
-abstract class AuthService extends GetxService {
-  Future<User?> getCurrentUser();
-  Future<User> signIn(String username, String password);
-  Future<void> signOut();
-}
-
-class FakeAuthService extends AuthService {
-  @override
-  Future<User?> getCurrentUser() async {
-    await Future.delayed(const Duration(seconds: 2));
+class AuthService {
+  static Future<User> signIn(String username, String password) async {
+    Future.delayed(const Duration(seconds: 2));
+    return User(username: username, name: 'Test', role: Role.manager);
   }
 
-  @override
-  Future<User> signIn(String username, String password) async {
-    await Future.delayed(const Duration(seconds: 2));
-
-    String lusername = username.toLowerCase();
-    String? storeno = null;
-    switch (lusername) {
-      case 'manager':
-        storeno = password;
-      case 'admin':
-        break;
-    }
-
-    } else if (username.)
+  static Future<void> signOut() async {
+    Future.delayed(const Duration(seconds: 1));
   }
 }
 
-class AuthenticationExeption implements Exception {
+class User {
+  String username;
+  String name;
+  Role role;
+
+  User({
+    required this.username,
+    required this.name,
+    required this.role,
+  });
+
+  @override
+  String toString() => 'User { name: $name, id: $username, role: $role }';
+}
+
+class AuthenticationException implements Exception {
   final String message;
-  AuthenticationExeption({this.message = 'Unknown error occured. '});
+  AuthenticationException({this.message = 'Unknown error occured. '});
 }
