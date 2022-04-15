@@ -4,17 +4,18 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import 'package:hello_button_v3/controllers/auth_controller.dart';
+import 'package:hello_button_v3/models/user.dart';
 import 'package:hello_button_v3/services/graphql.dart';
 import 'package:hello_button_v3/widgets/button_grid_widget.dart';
 import 'package:hello_button_v3/views/waiting_view.dart';
 
 class ButtonGridView extends StatefulWidget {
   final bool useSliverHeader;
-  final Role role;
+  final User? user;
   const ButtonGridView({
     Key? key,
+    this.user,
     this.useSliverHeader = false,
-    this.role = Role.none,
   }) : super(key: key);
 
   @override
@@ -29,24 +30,27 @@ class _ButtonGridViewState extends State<ButtonGridView> {
     super.initState();
 
     // browser에서 이 페이지를 벗어나는 경우 logout을 한다.
-    html.window.onBeforeUnload.listen((event) async {
-      _auth.logout();
-    });
+    // html.window.onBeforeUnload.listen((event) async {
+    //   _auth.logout();
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
+    print('user: ${widget.user}');
+    print(Theme.of(context).platform);
     return GraphQLProvider(
       client: GraphqlConfig.initClient(),
       child: Query(
         options: QueryOptions(
           document: gql(Queries.site),
-          variables: const {'siteid': 35},
+          variables: {'siteid': widget.user?.siteId},
         ),
         builder: (result, {refetch, fetchMore}) {
           if (result.hasException) return Text(result.exception.toString());
           if (result.isLoading) return const WaitingView();
 
+          print(result);
           if (result.data?['site'] == null) return Text('No such store!!');
 
           print(result.data);
@@ -61,11 +65,11 @@ class _ButtonGridViewState extends State<ButtonGridView> {
             // resizeToAvoidBottomInset: false,
             backgroundColor: Colors.white,
             appBar: widget.useSliverHeader ? null : buttonGridAppBar(title),
-            body: buttonGridBody(
-              widget.useSliverHeader,
-              child: ButtonGridWidget(buttons: buttons, role: Role.admin),
-              title: title,
-            ),
+            body: widget.useSliverHeader
+                ? sliverGrid(
+                    title: title,
+                    child: ButtonGridWidget(buttons: buttons, role: Role.admin))
+                : ButtonGridWidget(buttons: buttons, role: Role.admin),
           );
         },
       ),
@@ -80,33 +84,92 @@ class _ButtonGridViewState extends State<ButtonGridView> {
       title: title,
       centerTitle: true,
       actions: [
-        IconButton(
-          icon: const Icon(Icons.more_vert),
-          onPressed: () => {},
-        ),
+        // IconButton(
+        //   icon: const Icon(Icons.more_vert),
+        //   onPressed: () => {},
+        // ),
         PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert),
-          onSelected: (String newMenu) {
-            print('select menu $newMenu');
+          onSelected: (String menuId) {
+            print('select menu $menuId');
+            switch (menuId) {
+              case 'logout':
+                _auth.logout();
+                break;
+            }
           },
-          itemBuilder: (BuildContext context) => ['one', 'two', 'three']
-              .map((String menu) =>
-                  PopupMenuItem<String>(value: menu, child: Text(menu)))
-              .toList(),
+          itemBuilder: (BuildContext context) => [
+            {'id': 'logout', 'title': 'logout'},
+            'two',
+            'three'
+          ].map((dynamic menu) {
+            if (menu.runtimeType == String) {
+              return PopupMenuItem<String>(value: menu, child: Text(menu));
+            } else {
+              return PopupMenuItem<String>(
+                  value: menu['id'], child: Text(menu['title']));
+            }
+          }).toList(),
         ),
       ],
     );
   }
 
-  Widget buttonGridBody(bool useSliver,
-      {required Widget child, Widget? title}) {
-    if (!useSliver) return child;
+  Widget sliverGrid({required Widget child, Widget? title}) {
+    // return NestedScrollView(
+    //   floatHeaderSlivers: true,
+    //   headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+    //     return <Widget>[
+    //       SliverAppBar(
+    //         pinned: true,
+    //         snap: true,
+    //         floating: true,
+    //         expandedHeight: 160.0,
+    //         flexibleSpace: FlexibleSpaceBar(
+    //           title: title,
+    //           background:
+    //               Image.asset('assets/images/splash.png', fit: BoxFit.fill),
+    //         ),
+    //         forceElevated: innerBoxIsScrolled,
+    //       ),
+    //        SliverGrid(
+    //           gridDelegate:
+    //               SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+    //           delegate: SliverChildListDelegate(
+    //             [
+    //               Container(color: Colors.red, height: 150.0),
+    //               Container(color: Colors.purple, height: 150.0),
+    //               Container(color: Colors.green, height: 150.0),
+    //               Container(color: Colors.cyan, height: 150.0),
+    //               Container(color: Colors.indigo, height: 150.0),
+    //               Container(color: Colors.black, height: 150.0),
+    //             ],
+    //           )),
+    //     ];
+    //   },
+    //   body: SliverGrid(
+    //       gridDelegate:
+    //           SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+    //       delegate: SliverChildListDelegate(
+    //         [
+    //           Container(color: Colors.red, height: 150.0),
+    //           Container(color: Colors.purple, height: 150.0),
+    //           Container(color: Colors.green, height: 150.0),
+    //           Container(color: Colors.cyan, height: 150.0),
+    //           Container(color: Colors.indigo, height: 150.0),
+    //           Container(color: Colors.black, height: 150.0),
+    //         ],
+    //       )),
+    // );
     return CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.black,
+          elevation: 0,
           pinned: true,
-          snap: false,
-          floating: false,
+          snap: true,
+          floating: true,
           expandedHeight: 160.0,
           flexibleSpace: FlexibleSpaceBar(
             title: title,
@@ -114,9 +177,35 @@ class _ButtonGridViewState extends State<ButtonGridView> {
                 Image.asset('assets/images/splash.png', fit: BoxFit.fill),
           ),
         ),
-        SliverFillRemaining(
-          child: child,
-        )
+        child,
+        // SliverGrid.count(
+        //     gridDelegate:
+        //         SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+        //     delegate: SliverChildListDelegate(
+        //       [
+        //         Container(color: Colors.red, height: 150.0),
+        //         Container(color: Colors.purple, height: 150.0),
+        //         Container(color: Colors.green, height: 150.0),
+        //         Container(color: Colors.cyan, height: 150.0),
+        //         Container(color: Colors.indigo, height: 150.0),
+        //         Container(color: Colors.black, height: 150.0),
+        //         Container(color: Colors.red, height: 150.0),
+        //         Container(color: Colors.purple, height: 150.0),
+        //         Container(color: Colors.green, height: 150.0),
+        //         Container(color: Colors.cyan, height: 150.0),
+        //         Container(color: Colors.indigo, height: 150.0),
+        //         Container(color: Colors.black, height: 150.0),
+        //         Container(color: Colors.red, height: 150.0),
+        //         Container(color: Colors.purple, height: 150.0),
+        //         Container(color: Colors.green, height: 150.0),
+        //         Container(color: Colors.cyan, height: 150.0),
+        //         Container(color: Colors.indigo, height: 150.0),
+        //         Container(color: Colors.black, height: 150.0),
+        //       ],
+        //     )),
+        // SliverFillRemaining(
+        //   child: child
+        // )
       ],
     );
   }

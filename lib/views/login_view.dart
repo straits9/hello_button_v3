@@ -46,7 +46,7 @@ class _LoginViewState extends State<LoginView> {
           height: size.height,
           // background design위에 login form을 만든다.
           child: Background(
-            child: loginForm(size),
+            child: Obx(() { return loginForm(size); }),
           ),
         ),
       ),
@@ -115,14 +115,18 @@ class _LoginViewState extends State<LoginView> {
           // error 발생시 표시하는 부분
           Center(
             child: Text(
-              error,
+              _controller.state is LoginFailure ? (_controller.state as LoginFailure).error : '',
               style: const TextStyle(
                 color: Color.fromRGBO(216, 181, 58, 1.0),
                 fontSize: 14.0,
               ),
             ),
           ),
-          SizedBox(height: size.height * 0.035),
+          if (_controller.state is LoginLoading)
+                const Center(
+                  child: CircularProgressIndicator(),
+                )
+          else SizedBox(height: size.height * 0.035),
 
           // login button
           Container(
@@ -142,14 +146,6 @@ class _LoginViewState extends State<LoginView> {
               onPressed: _controller.state is LoginLoading
                   ? () {}
                   : _onLoginButtonPressed,
-              // onPressed: () async {
-              //   // if (_formKey.currentState?.validate() ?? false) {
-              //   if (_formKey.currentState!.validate()) {
-              //     // await _viewModel.loginUser(emailCtr.text, passwordCtr.text);
-              //     _auth.login('token');
-              //     _controller.
-              //   }
-              // },
               child: const Text(
                 'Login',
                 textAlign: TextAlign.center,

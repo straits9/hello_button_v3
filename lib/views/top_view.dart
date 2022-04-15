@@ -30,12 +30,13 @@ class TopView extends StatelessWidget {
           return const WaitingView();
         } else {
           if (snapshot.hasError) {
+            print(snapshot.error);
             return page(context);
           }
           return Obx(() {
             // login 상태에 따른 분기
             return _auth.isLogged.value
-                ? const ButtonGridView()
+                ? ButtonGridView(user: _auth.user, useSliverHeader: true,)
                 : const LoginView();
           });
         }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hello_button_v3/controllers/auth_controller.dart';
 
+import 'package:hello_button_v3/models/user.dart';
 import 'package:hello_button_v3/widgets/reorder_grid/reorderable_grid.dart';
 
 const Map<String, String> prefixes = {
@@ -34,8 +34,9 @@ class _ButtonGridWidgetState extends State<ButtonGridWidget> {
   @override
   void initState() {
     super.initState();
-    manage = widget.role.index >= Role.manager.index;
-    print('Role: ${widget.role}, ${widget.role.index} manage? $manage');
+    // manage = widget.role.index >= Role.manager.index;
+    // print('Role: ${widget.role}, ${widget.role.index} manage? $manage');
+    manage = false;
   }
 
   @override
@@ -46,6 +47,7 @@ class _ButtonGridWidgetState extends State<ButtonGridWidget> {
 
     return manage
         ? ReorderableGridView.count(
+            crossAxisCount: 2,
             primary: false,
             padding:
                 EdgeInsets.symmetric(horizontal: hSpacing, vertical: vSpacing),
@@ -53,7 +55,6 @@ class _ButtonGridWidgetState extends State<ButtonGridWidget> {
             mainAxisSpacing: vSpacing,
             childAspectRatio: 3 / 4,
             children: widget.buttons.map((btn) => buildButton(btn)).toList(),
-            crossAxisCount: 2,
             onReorder: (oldIndex, newIndex) {
               print('reorder $oldIndex => $newIndex');
               setState(() {
@@ -62,11 +63,12 @@ class _ButtonGridWidgetState extends State<ButtonGridWidget> {
               });
             },
           )
-        : GridView.count(
+        // : GridView.count(
+        : SliverGrid.count(
             crossAxisCount: 2,
-            primary: false,
-            padding:
-                EdgeInsets.symmetric(horizontal: hSpacing, vertical: vSpacing),
+            // primary: false,
+            // padding:
+            //     EdgeInsets.symmetric(horizontal: hSpacing, vertical: vSpacing),
             crossAxisSpacing: hSpacing,
             mainAxisSpacing: vSpacing,
             childAspectRatio: 3 / 4,

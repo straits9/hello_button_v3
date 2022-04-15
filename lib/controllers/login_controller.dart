@@ -17,6 +17,7 @@ class LoginController extends GetxController {
       await _authController.login(username, password);
       _loginStateStream.value = LoginState();
     } on AuthenticationException catch (e) {
+      print('log auth error: ${e.message}');
       _loginStateStream.value = LoginFailure(error: e.message);
     }
   }
