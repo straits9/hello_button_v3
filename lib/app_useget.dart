@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:hello_button_v3/views/button/button1_view.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hello_button_v3/views/hellobutton_view.dart';
 import 'package:hello_button_v3/views/order/order_view.dart';
 import 'package:hello_button_v3/views/top_view.dart';
 import 'package:hello_button_v3/views/unknown_view.dart';
-
-// import 'views/top_view.dart';
-import 'views/button/button_view.dart';
-import 'views/menu_view.dart';
 
 class MypGetApp extends StatefulWidget {
   final bool isTestMode;
@@ -31,23 +26,26 @@ class _MypGetAppState extends State<MypGetApp> {
       debugShowCheckedModeBanner: false,
       title: 'Hello Button',
       theme: ThemeData(
+        textTheme: GoogleFonts.notoSansGothicTextTheme(),
         //primarySwatch: Colors.blue,
-        appBarTheme: const AppBarTheme(
-          //backwardsCompatibility: false,
-          systemOverlayStyle: SystemUiOverlayStyle.dark,
-        ),
+        //appBarTheme: const AppBarTheme(
+        //  //backwardsCompatibility: false,
+        //  systemOverlayStyle: SystemUiOverlayStyle.dark,
+        //),
       ),
-      // initialRoute: '/',
+      initialRoute: '/admin',
       getPages: [
         GetPage(
-            name: '/', page: () => TopView(), transition: Transition.fadeIn),
+            name: '/admin',
+            page: () => TopView(),
+            transition: Transition.fadeIn),
         // GetPage(name: '/splash', page: () => SplashView()),
         // TODO: /hb/test 경우 응답을 하지 않음.
-        GetPage(
-            name: '/hb',
-            // page: () => ButtonView(),
-            page: () => HelloButtonView(),
-            transition: Transition.noTransition),
+        //GetPage(
+        //    name: '/hb',
+        //    // page: () => ButtonView(),
+        //    page: () => HelloButtonView(),
+        //    transition: Transition.noTransition),
         GetPage(
             name: '/hb/:code',
             // page: () => ButtonView(),
@@ -58,10 +56,21 @@ class _MypGetAppState extends State<MypGetApp> {
             page: () => const OrderView(),
             transition: Transition.noTransition),
       ],
-      unknownRoute: GetPage(name: '/404', page: () => UnknownView('msg')),
-      // onUnknownRoute: (settings) {
-      //   return MaterialPageRoute(builder: (_) => UnknownView('msg1'));
-      // },
+      // GetX의 unknown router에 문제가 있음. initalRoute를 '/'로 설정할 경우 unknownRoute가 작동하지 않음
+      unknownRoute: GetPage(name: '/404', page: () => UnknownView('Error')),
+      // GetX의 onUnknownRoute는 작동하지 않음
+      onUnknownRoute: (settings) {
+        print('on unknown');
+        return MaterialPageRoute(builder: (_) => UnknownView('msg1'));
+      },
+    );
+  }
+
+  Route<dynamic>? UnknownRoute(settings) {
+    print('unknown routing:');
+    return MaterialPageRoute<dynamic>(
+      settings: settings,
+      builder: (BuildContext context) => UnknownView('Unknwon'),
     );
   }
 }

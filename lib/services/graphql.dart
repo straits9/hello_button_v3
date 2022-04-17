@@ -4,6 +4,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 //const url =
 //    'https://vkmawdwa6h.execute-api.ap-northeast-2.amazonaws.com/dev/graphql/v3';
 const url = 'http://localhost:3000/dev/graphql/v3';
+//const url = 'http://192.168.0.19:3000/dev/graphql/v3';
 
 class GraphqlConfig {
   static final HttpLink _httpLink = HttpLink(url);
@@ -78,6 +79,62 @@ class Queries {
             }
         }
       }
+    }
+  """;
+
+  static const String mac = """
+    query mac(\$mac: MAC!) {
+        deviceByMac(mac: \$mac) {
+            id, sn, siteId
+            site {
+                id, name, desc, country, useButton
+                createdAt, updatedAt
+                buttons {
+                    title, image, order, active, actionId,
+                    action {
+                        __typename
+                        ... on Call {
+                            message
+                            eventId
+                        }
+                        ... on CallMessage {
+                            message
+                            userinput {
+                                __typename
+                                ... on UserInput {
+                                    title
+                                    text
+                                }
+                                ... on Selection {
+                                    title
+                                    text
+                                    items
+                                }
+                            }
+                        }
+                        ... on Group {
+                            groupId
+                            message
+                            userinput {
+                                __typename
+                                ... on UserInput {
+                                    title
+                                    text
+                                }
+                                ... on Selection {
+                                    title
+                                    text
+                                    items
+                                }
+                            }
+                        }
+                        ... on Link {
+                            url
+                        }
+                    }
+                }
+            }
+        }
     }
   """;
 }
