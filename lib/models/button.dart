@@ -6,6 +6,7 @@ class Button {
   int? order; // button order
   String? message; // 메시지로 전송될 내용
   String actionId; // button 처리 방법 (C, M, G, S, U, A, O)
+  Map<String, dynamic> action;
   String? inputTypeId; // sub message input type (T, P, S)
 
   Button({
@@ -16,6 +17,7 @@ class Button {
     this.order,
     this.message,
     required this.actionId,
+    required this.action,
     this.inputTypeId,
   });
 
@@ -28,6 +30,7 @@ class Button {
       order: json['order'],
       message: json['message'],
       actionId: json['actionId'],
+      action: json['action'],
       inputTypeId: json['inputTypeId'],
     );
   }
@@ -40,6 +43,7 @@ class Button {
         'order': order,
         'message': message,
         'actionId': actionId,
+        'action': action,
         'inputTypeId': inputTypeId,
       };
 
