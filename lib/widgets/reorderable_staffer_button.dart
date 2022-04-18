@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:hello_button_v3/models/site.dart';
 import 'package:reorderableitemsview/reorderableitemsview.dart';
 
 class ReorderStaggerButtonView extends StatefulWidget {
-  List<Map<String, dynamic>> buttons;
-  ReorderStaggerButtonView({Key? key, required this.buttons}) : super(key: key);
+  final Site site;
+  const ReorderStaggerButtonView({
+    Key? key,
+    required this.site,
+  }) : super(key: key);
 
   @override
   State<ReorderStaggerButtonView> createState() =>
@@ -11,50 +15,19 @@ class ReorderStaggerButtonView extends StatefulWidget {
 }
 
 class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
-  List<StaggeredTileExtended> _listStaggeredTileExtended =
-      <StaggeredTileExtended>[
-    //StaggeredTileExtended.count(2, 2),
-    //StaggeredTileExtended.count(2, 1),
-    //StaggeredTileExtended.count(1, 2),
-    //StaggeredTileExtended.count(1, 1),
-    //StaggeredTileExtended.count(2, 2),
-    //StaggeredTileExtended.count(1, 2),
-    //StaggeredTileExtended.count(1, 1),
-    //StaggeredTileExtended.count(3, 1),
-    //StaggeredTileExtended.count(1, 1),
-    //StaggeredTileExtended.count(4, 1),
-    StaggeredTileExtended.count(2, 2),
-    StaggeredTileExtended.count(2, 2),
-    StaggeredTileExtended.count(2, 2),
-    StaggeredTileExtended.count(2, 2),
-    StaggeredTileExtended.count(2, 2),
-    StaggeredTileExtended.count(2, 2),
-    StaggeredTileExtended.count(2, 2),
-    StaggeredTileExtended.count(2, 2),
-    StaggeredTileExtended.count(2, 2),
-    StaggeredTileExtended.count(2, 2),
-  ];
-
-  List<Widget> _tiles = <Widget>[];
-  //List<Widget> _tiles = <Widget>[
-  //  _Example01Tile(Key("a"), Colors.green, Icons.widgets),
-  //  _Example01Tile(Key("b"), Colors.lightBlue, Icons.wifi),
-  //  _Example01Tile(Key("c"), Colors.amber, Icons.panorama_wide_angle),
-  //  _Example01Tile(Key("d"), Colors.brown, Icons.map),
-  //  _Example01Tile(Key("e"), Colors.deepOrange, Icons.send),
-  //  _Example01Tile(Key("f"), Colors.indigo, Icons.airline_seat_flat),
-  //  _Example01Tile(Key("g"), Colors.red, Icons.bluetooth),
-  //  _Example01Tile(Key("h"), Colors.pink, Icons.battery_alert),
-  //  _Example01Tile(Key("i"), Colors.purple, Icons.desktop_windows),
-  //  _Example01Tile(Key("j"), Colors.blue, Icons.radio),
-  //];
+  final List<StaggeredTileExtended> _listStaggeredTileExtended = [];
+  final List<Widget> _tiles = <Widget>[];
 
   bool bGrid = true;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     bGrid = true;
+    for (var i = 0; i < widget.site.buttons!.length; i++) {
+      _tiles.add(HelloButtonTile(Key(widget.site.buttons![i].id), Colors.white,
+          Icons.widgets, widget.site.buttons![i].image));
+      _listStaggeredTileExtended.add(StaggeredTileExtended.count(2, 2));
+    }
   }
 
   @override
@@ -62,73 +35,147 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
     final double w = MediaQuery.of(context).size.width;
     final double h = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: Center(
-          child: Text(
-            "List Demo",
-            //"List Demo fdas f fdsa fdsa fdsa fdsa1 fdsa2 fdsa3 fdsa4 fdsa5 fdsa6 fdsa7 fdsa8 fdsafdsafdsafsd fdsa9 fdsa10 fdsa11 fdsa12å fdsa fdsa fdas fdsa fdsa fdsa fds",
-            textScaleFactor: 1.0,
-            maxLines: 2,
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: widget.site.background == null
+          ? null
+          : BoxDecoration(
+              image: DecorationImage(
+              image: NetworkImage(widget.site.background!),
+              fit: BoxFit.cover,
+            )),
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          title: Center(
+            child: Text(
+              widget.site.name,
+              textScaleFactor: 1.0,
+              maxLines: 2,
+              style: const TextStyle(
+                shadows: <Shadow>[
+                  Shadow(
+                    offset: Offset(0.0, 0.0),
+                    blurRadius: 15.0,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          // backgroundColor: const Color.fromRGBO(0, 0, 0, 0.1),
+          // flexibleSpace: widget.site.logo == null
+          //     ? null
+          //     : Container(
+          //       padding: EdgeInsets.only(right: 40),
+          //       child: Center(
+          //         child: Image(
+          //             image: NetworkImage(widget.site.logo!),
+          //             fit: BoxFit.contain,
+          //           ),
+          //       ),
+          //     ),
+          toolbarHeight: h * 0.15,
+          actions: [
+            IconButton(
+              onPressed: () => {
+                setState(() => {bGrid = !bGrid})
+              },
+              icon: const Icon(Icons.more_vert),
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: ReorderableItemsView(
+            padding: EdgeInsets.all(0.1 * w),
+            onReorder: (int oldIndex, int newIndex) {
+              setState(() {
+                _tiles.insert(newIndex, _tiles.removeAt(oldIndex));
+              });
+            },
+            children: _tiles,
+            crossAxisCount: 4,
+            isGrid: bGrid,
+            staggeredTiles: _listStaggeredTileExtended,
+            longPressToDrag: true,
+            mainAxisSpacing: 0.1 * w,
+            crossAxisSpacing: 0.1 * w,
           ),
         ),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        toolbarHeight: 100,
-        actions: [
-          IconButton(
-              onPressed: () => {
-                    setState(() => {bGrid = !bGrid})
-                  },
-              icon: Icon(Icons.more_vert)),
-        ],
-      ),
-      body: ReorderableItemsView(
-        padding: EdgeInsets.all(0.1 * w),
-        onReorder: (int oldIndex, int newIndex) {
-          setState(() {
-            _tiles.insert(newIndex, _tiles.removeAt(oldIndex));
-          });
-        },
-        children: _tiles,
-        crossAxisCount: 4,
-        isGrid: bGrid,
-        staggeredTiles: _listStaggeredTileExtended,
-        longPressToDrag: true,
-        mainAxisSpacing: 0.1 * w,
-        crossAxisSpacing: 0.1 * w,
       ),
     );
   }
 }
 
-class _Example01Tile extends StatelessWidget {
-  _Example01Tile(Key key, this.backgroundColor, this.iconData)
-      : super(key: key);
+class HelloButtonTile extends StatelessWidget {
+  const HelloButtonTile(
+    Key key,
+    this.backgroundColor,
+    this.iconData,
+    this.image,
+  ) : super(key: key);
 
   final Color backgroundColor;
+  final String? image;
   final IconData iconData;
 
   @override
   Widget build(BuildContext context) {
-    return new Card(
+    return Card(
       color: backgroundColor,
-      child: new InkWell(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      child: InkWell(
         onTap: () {
-          print('tab');
+          print('tab $key');
         },
-        child: new Center(
-          child: new Padding(
-            padding: EdgeInsets.all(4.0),
-            child: new Icon(
-              iconData,
-              color: Colors.white,
+        child: Stack(children: [
+          if (image != null)
+            Container(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child:
+                    Image.network(imageUrlConvert(image!), fit: BoxFit.cover),
+              ),
+            ),
+          Center(
+            child: Padding(
+              padding: EdgeInsets.all(4.0),
+              child: Icon(
+                iconData,
+                color: Colors.white,
+              ),
             ),
           ),
-        ),
+        ]),
       ),
     );
   }
+}
+
+const Map<String, String> prefixes = {
+  'http://v2.hellobell.net':
+      'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3',
+  'http://files.hellobell.net':
+      'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net',
+  'https://bo.hellobell.net':
+      'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3'
+};
+
+// 이전 version과 compatibility를 유지하기 위해서 S3 bucket <files.hellobell.net>에
+// vue /images directory를 옮겨놓고 이를 secure한 uri로 변경한다.
+String imageUrlConvert(String uri) {
+  var matches =
+      prefixes.keys.firstWhere((key) => uri.startsWith(key), orElse: () => '');
+
+  if (matches != '') {
+    var modified = uri.replaceFirst(matches, prefixes[matches]!);
+    //print('conv url: $uri => $modified');
+    return modified;
+  }
+  return uri;
 }

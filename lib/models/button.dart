@@ -1,56 +1,46 @@
 class Button {
-  int no; // button #
-  int? order; // button order
-  String label; // button 표시 String
-  String? desc; // button 설명
+  String id; // button #
+  String title; // button 표시 String
   String? image; // button 이미지
+  String? desc; // button 설명
+  int? order; // button order
   String? message; // 메시지로 전송될 내용
-  String action; // button 처리 방법 (C, M, G, S, U, A, O)
-  String? inputType; // sub message input type (T, P, S)
-  String? inputTitle; // sub message (P, S)의 경우 물어보는 title
-  List<String>? items; // inputType == S 인 경우 열거할 내용
-  int flowRule; // flow rule
+  String actionId; // button 처리 방법 (C, M, G, S, U, A, O)
+  String? inputTypeId; // sub message input type (T, P, S)
 
   Button({
-    required this.no,
-    this.order,
-    required this.label,
-    this.desc,
+    required this.id,
+    required this.title,
     this.image,
+    this.desc,
+    this.order,
     this.message,
-    required this.action,
-    this.inputType,
-    this.inputTitle,
-    this.items,
-    required this.flowRule,
+    required this.actionId,
+    this.inputTypeId,
   });
 
   factory Button.fromJson(Map<String, dynamic> json) {
     return Button(
-      no: json['no'],
-      label: json['name'],
-      action: json['division'],
-      flowRule: json['flow_rule'],
-      order: json['order'],
-      desc: json['desc_image'],
+      id: json['id'],
+      title: json['title'],
       image: json['image'],
+      desc: json['desc'],
+      order: json['order'],
       message: json['message'],
-      inputType: json['type'],
-      inputTitle: json['title'],
+      actionId: json['actionId'],
+      inputTypeId: json['inputTypeId'],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'no': no,
-        'label': label,
-        'action': action,
-        'flowRule': flowRule,
-        'order': order,
-        'desc': desc,
+        'id': id,
+        'title': title,
         'image': image,
+        'desc': desc,
+        'order': order,
         'message': message,
-        'inputType': inputType,
-        'inputTitle': inputTitle,
+        'actionId': actionId,
+        'inputTypeId': inputTypeId,
       };
 
   @override

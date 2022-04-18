@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -27,6 +29,26 @@ class GraphqlConfig {
     );
     return client;
   }
+
+  static handleError(Exception exception) {
+    if (exception is TimeoutException) {
+      return exception.message;
+    } else if (exception is OperationException) {
+      print(exception.linkException is ServerException);
+      if (exception.linkException is ServerException) {
+        ServerException sexception = exception.linkException as ServerException;
+        print('server exception');
+        print(sexception.parsedResponse?.errors?[0].message);
+        return sexception.parsedResponse?.errors?[0].extensions?['code'];
+      } else {
+        if (exception.graphqlErrors[0].message.contains('error_code')) {
+          print('first error');
+        }
+        return exception.graphqlErrors[0].message;
+      }
+    }
+    return 'error unclassified';
+  }
 }
 
 class Queries {
@@ -34,8 +56,8 @@ class Queries {
     query site(\$siteid: ID!) {
       site(id: \$siteid) {
         id, name, desc, country, useButton
-        buttons {
-            title, image, order, active, actionId,
+        buttons(order: ASC) {
+            id, title, image, order, active, actionId,
             action {
                 __typename
                 ... on Call {
@@ -87,10 +109,11 @@ class Queries {
         deviceByMac(mac: \$mac) {
             id, sn, siteId
             site {
-                id, name, desc, country, useButton
+                id, name, desc, country, tz, locale, category, active, useButton
+                backgroundId, background, theme, logoId, logo
                 createdAt, updatedAt
-                buttons {
-                    title, image, order, active, actionId,
+                buttons(order: ASC) {
+                    id, title, image, order, active, actionId, desc
                     action {
                         __typename
                         ... on Call {

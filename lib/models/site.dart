@@ -1,92 +1,66 @@
 import 'package:hello_button_v3/models/button.dart';
 
 class Site {
-  int? no;
-  String? name;
+  String id;
+  String name;
+  String? desc;
+  String? country;
+  String? tz;
+  String? locale;
   bool useButton;
-  String? locale;
-  ButtonBase? button;
+  String? theme;
+  String? background;
+  String? logo;
+  List<Button>? buttons;
 
-  Site({this.no, this.name, this.useButton = false, this.locale, this.button});
-
-  factory Site.fromJson(Map<String, dynamic> json) {
-    var siteInfo = json['store'];
-    print('siteInfo: $siteInfo');
-    var button = ButtonBase.fromJson(json);
-    print('button base: $button');
-    return Site(
-      no: siteInfo['store_no'],
-      name: siteInfo['name'],
-      useButton: siteInfo['use_hellobutton_yn'] == 'Y',
-      locale: siteInfo['locale'] ?? 'ko-KR',
-      button: button,
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        'store_no': no,
-        'name': name,
-        'use_hellobutton_yn': useButton ? 'Y' : 'N',
-        'locale': locale,
-        'button': button,
-      };
-
-  @override
-  String toString() => toJson().toString();
-}
-
-class ButtonBase {
-  String? theme; // hello button page theme
-  String? background; // hello button page background
-  String? msgProcess; // process message
-  String? msgComplete; // complete message
-  int urlChangePeriod; // url change period (second)
-
-  int? appNo; // registered hellobutton app no
-  String? apiKey; // api key for follow operation
-  DateTime? registeredAt; // hello button register date
-  String? locale;
-
-  ButtonBase({
+  Site({
+    required this.id,
+    required this.name,
+    this.desc,
+    this.tz,
+    this.locale,
+    this.useButton = false,
     this.theme,
     this.background,
-    this.msgProcess,
-    this.msgComplete,
-    this.urlChangePeriod = 0,
-    this.appNo,
-    this.apiKey,
-    this.registeredAt,
-    this.locale,
+    this.logo,
+    this.buttons,
   });
 
-  factory ButtonBase.fromJson(Map<String, dynamic> json) {
-    var siteInfo = json['store'];
-    // List<Button> buttons = [];
-    // if (json.containsKey('buttons')) {
-    //   final List<dynamic> btnJson = json['buttons'];
-    //   btnJson.forEach((element) {
-    //     buttons.add(Button.fromJson(element));
-    //   });
-    // }
-    return ButtonBase(
-      theme: siteInfo['theme'],
-      urlChangePeriod: siteInfo['url_chg_period'],
-      appNo: siteInfo['app_no'],
-      apiKey: siteInfo['api_key'],
-      registeredAt: DateTime.parse(siteInfo['reg_dt']),
+  factory Site.fromJson(Map<String, dynamic> json) {
+    List<Button> buttons = [];
+    if (json['buttons'] != null && json['buttons'] is List) {
+      for (var i = 0; i < json['buttons'].length; i++) {
+        var button = json['buttons'][i];
+        Button btn = Button.fromJson(button);
+        buttons.add(btn);
+      }
+    }
+
+    return Site(
+      id: json['id'],
+      name: json['name'],
+      desc: json['desc'],
+      tz: json['tz'],
+      locale: json['locale'] ?? 'ko-KR',
+      useButton: json['useButton'],
+      theme: json['theme'],
+      background: json['background'],
+      logo: json['logo'],
+      buttons: buttons,
     );
   }
 
   Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'desc': desc,
+        'tz': tz,
+        'locale': locale,
+        'useButton': useButton,
         'theme': theme,
         'background': background,
-        'msgProcess': msgProcess,
-        'msgComplete': msgComplete,
-        'urlChangePeriod': urlChangePeriod,
-        'appNo': appNo,
-        'apiKey': apiKey,
-        'registeredAt': registeredAt,
-        'locale': locale,
+        'logo': logo,
+        'buttons': buttons,
       };
 
   @override
