@@ -1,10 +1,12 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:reorderableitemsview/reorderableitemsview.dart';
+
 import 'package:hello_button_v3/models/button.dart';
 import 'package:hello_button_v3/models/site.dart';
 import 'package:hello_button_v3/widgets/rating_dialog.dart';
-import 'package:reorderableitemsview/reorderableitemsview.dart';
+import 'package:hello_button_v3/widgets/text_dialog.dart';
 
 class ReorderStaggerButtonView extends StatefulWidget {
   final Site site;
@@ -29,7 +31,10 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
     bGrid = true;
     for (var i = 0; i < widget.site.buttons!.length; i++) {
       _tiles.add(HelloButtonTile(
-          Key(widget.site.buttons![i].id), widget.site.buttons![i]));
+        Key(widget.site.buttons![i].id),
+        widget.site.buttons![i],
+        _actionProcessing,
+      ));
       _listStaggeredTileExtended.add(StaggeredTileExtended.count(2, 2));
     }
   }
@@ -112,15 +117,159 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
       ),
     );
   }
+
+  void _actionProcessing(Button button) {
+    print(button.action);
+    switch (button.action.typename) {
+      case 'Rating':
+        _showRatingDialog(context, widget.site.logo);
+        break;
+      case 'Link':
+        _launchURL(button.action.url!);
+        break;
+      case 'CallMessage':
+      case 'Group':
+        switch (button.action.userinput?.typename) {
+          case 'UserInput':
+            _showTextDialog(context, button.action.userinput?.title,
+                button.action.userinput?.text);
+            break;
+          case 'Selection':
+            _showSelection(context, button.action);
+            break;
+          case 'JustText':
+          default:
+            break;
+        }
+        break;
+      default:
+        ;
+    }
+  }
+
+  void _launchURL(String url) async {
+    if (!await launch(url)) {
+      print('error launch');
+    }
+  }
+
+  void _showSelection(BuildContext context, ButtonAction action) {
+    print(action);
+    // Map<String, dynamic> ui = action['userinput'];
+    // print(ui);
+    // print(ui['items']);
+    // print(ui['items'].length);
+    // List<String> items =
+    //     (ui['items'] as List<String>).map((item) => item).toList();
+    // print(items);
+    // // for (int i = 0; i < ui['items'].length; i++) {
+    // //   String val = ui['items'][i];
+    // //   print(val);
+    // // }
+    // List<String> list = ui['items'];
+    // showModalBottomSheet(
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return Container(
+    //       child: Column(
+    //         children: [],
+    //       ),
+    //     );
+    //   },
+    // );
+  }
+
+  void _showTextDialog(BuildContext context,
+      [String? title, String? message, String? logo]) {
+    print('title: $title, msg: $message, logo: $logo');
+    final _dialog = TextDialog(
+      title: Text(
+        title ?? '',
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      message: message == null
+          ? null
+          : Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 15,
+              ),
+            ),
+      submitButtonText: 'Submit',
+      onCancelled: () => print('cancelled'),
+      onSubmitted: (response) {
+        print('text: ${response.text}');
+      },
+    );
+
+    showDialog(
+      context: context,
+      barrierDismissible: true, // set to false if you want to force a rating
+      builder: (context) => _dialog,
+    );
+  }
+
+  // show the rating dialog
+  void _showRatingDialog(BuildContext context, String? logo) {
+    final _dialog = RatingDialog(
+      initialRating: 3.0,
+      // your app's name?
+      title: const Text(
+        'Rating Dialog',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      // encourage your user to leave a high rating?
+      message: const Text(
+        'Tap a star to set your rating. Add more description here if you want.',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 15),
+      ),
+      // your app's logo?
+      // image: Image.asset('assets/images/bottom2.png'),
+      image: logo != null ? Image.network(logo) : null,
+      submitButtonText: 'Submit',
+      commentHint: 'Set your custom comment hint',
+      onCancelled: () => print('cancelled'),
+      onSubmitted: (response) {
+        print('rating: ${response.rating}, comment: ${response.comment}');
+
+        // TODO: add your own logic
+        if (response.rating < 3.0) {
+          // send their comments to your email or anywhere you wish
+          // ask the user to contact you instead of leaving a bad review
+        } else {
+          //_rateAndReviewApp();
+        }
+      },
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      barrierDismissible: true, // set to false if you want to force a rating
+      builder: (context) => _dialog,
+    );
+  }
 }
 
 class HelloButtonTile extends StatelessWidget {
   const HelloButtonTile(
     Key key,
     this.button,
+    this.callback,
   ) : super(key: key);
 
   final Button button;
+  final Function(Button) callback;
 
   @override
   Widget build(BuildContext context) {
@@ -131,9 +280,7 @@ class HelloButtonTile extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          print('tab ${button.id} ${button.actionId} ${button.inputTypeId}');
-          print(button.action);
-          _showRatingDialog(context);
+          callback.call(button);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -170,69 +317,6 @@ class HelloButtonTile extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  // show the rating dialog
-  void _showRatingDialog(context) {
-    // actual store listing review & rating
-    //void _rateAndReviewApp() async {
-    //  // refer to: https://pub.dev/packages/in_app_review
-    //  final _inAppReview = InAppReview.instance;
-
-    //  if (await _inAppReview.isAvailable()) {
-    //    print('request actual review from store');
-    //    _inAppReview.requestReview();
-    //  } else {
-    //    print('open actual store listing');
-    //    // TODO: use your own store ids
-    //    _inAppReview.openStoreListing(
-    //      appStoreId: '<your app store id>',
-    //      microsoftStoreId: '<your microsoft store id>',
-    //    );
-    //  }
-    //}
-
-    final _dialog = RatingDialog(
-      initialRating: 1.0,
-      // your app's name?
-      title: Text(
-        'Rating Dialog',
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      // encourage your user to leave a high rating?
-      message: Text(
-        'Tap a star to set your rating. Add more description here if you want.',
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 15),
-      ),
-      // your app's logo?
-      image: const FlutterLogo(size: 50),
-      submitButtonText: 'Submit',
-      commentHint: 'Set your custom comment hint',
-      onCancelled: () => print('cancelled'),
-      onSubmitted: (response) {
-        print('rating: ${response.rating}, comment: ${response.comment}');
-
-        // TODO: add your own logic
-        if (response.rating < 3.0) {
-          // send their comments to your email or anywhere you wish
-          // ask the user to contact you instead of leaving a bad review
-        } else {
-          //_rateAndReviewApp();
-        }
-      },
-    );
-
-    // show the dialog
-    showDialog(
-      context: context,
-      barrierDismissible: true, // set to false if you want to force a rating
-      builder: (context) => _dialog,
     );
   }
 }

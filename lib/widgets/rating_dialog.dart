@@ -94,7 +94,7 @@ class _RatingDialogState extends State<RatingDialog> {
                 widget.image != null
                     ? Padding(
                         child: widget.image,
-                        padding: const EdgeInsets.only(top: 25, bottom: 25),
+                        padding: const EdgeInsets.only(top: 5, bottom: 5),
                       )
                     : Container(),
                 widget.title,
@@ -110,7 +110,7 @@ class _RatingDialogState extends State<RatingDialog> {
                     direction: Axis.horizontal,
                     allowHalfRating: false,
                     itemCount: 5,
-                    itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                    itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
                     onRatingUpdate: (rating) {
                       setState(() {
                         _response!.rating = rating;
@@ -134,7 +134,7 @@ class _RatingDialogState extends State<RatingDialog> {
                         ),
                       )
                     : const SizedBox(height: 15),
-                SizedBox(height: 10),
+                const SizedBox(height: 20),
                 TextButton(
                   child: Text(
                     widget.submitButtonText,
@@ -148,7 +148,7 @@ class _RatingDialogState extends State<RatingDialog> {
                           widget.onSubmitted.call(_response!);
                         },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 20),
               ],
             ),
           ),

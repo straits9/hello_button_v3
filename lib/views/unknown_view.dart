@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class UnknownView extends StatelessWidget {
-  String msg;
+  String? msg;
   int code;
   UnknownView(this.msg, {this.code = 404});
 
@@ -27,7 +27,7 @@ class UnknownView extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: '$code. ',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   TextSpan(text: msg),
                 ],

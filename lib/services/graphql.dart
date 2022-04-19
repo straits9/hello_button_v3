@@ -31,14 +31,18 @@ class GraphqlConfig {
   }
 
   static handleError(Exception exception) {
+    print(exception);
     if (exception is TimeoutException) {
       return exception.message;
     } else if (exception is OperationException) {
       print(exception.linkException is ServerException);
       if (exception.linkException is ServerException) {
         ServerException sexception = exception.linkException as ServerException;
-        print('server exception');
-        print(sexception.parsedResponse?.errors?[0].message);
+        print('server exception $sexception');
+        if (sexception.parsedResponse == null) {
+          return sexception.originalException.toString();
+        }
+        print(sexception.parsedResponse?.errors?[0].extensions?['code']);
         return sexception.parsedResponse?.errors?[0].extensions?['code'];
       } else {
         if (exception.graphqlErrors[0].message.contains('error_code')) {

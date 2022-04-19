@@ -6,7 +6,7 @@ class Button {
   int? order; // button order
   String? message; // 메시지로 전송될 내용
   String actionId; // button 처리 방법 (C, M, G, S, U, A, O)
-  Map<String, dynamic> action;
+  ButtonAction action;
   String? inputTypeId; // sub message input type (T, P, S)
 
   Button({
@@ -30,7 +30,7 @@ class Button {
       order: json['order'],
       message: json['message'],
       actionId: json['actionId'],
-      action: json['action'],
+      action: ButtonAction.fromJson(json['action']),
       inputTypeId: json['inputTypeId'],
     );
   }
@@ -43,8 +43,89 @@ class Button {
         'order': order,
         'message': message,
         'actionId': actionId,
-        'action': action,
+        'action': action.toJson(),
         'inputTypeId': inputTypeId,
+      };
+
+  @override
+  String toString() => toJson().toString();
+}
+
+class ButtonAction {
+  String typename;
+  String? title;
+  String? message;
+  String? image;
+  String? url;
+  UserInput? userinput;
+
+  ButtonAction({
+    required this.typename,
+    this.title,
+    this.message,
+    this.image,
+    this.url,
+    this.userinput,
+  });
+
+  factory ButtonAction.fromJson(Map<String, dynamic> json) {
+    return ButtonAction(
+      typename: json['__typename'],
+      title: json['title'],
+      message: json['message'],
+      image: json['image'],
+      url: json['url'],
+      userinput: UserInput.fromJson(json['userinput']),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        '__typename': typename,
+        'title': title,
+        'message': message,
+        'image': image,
+        'url': url,
+        'userinput': userinput?.toJson(),
+      };
+
+  @override
+  String toString() => toJson().toString();
+}
+
+class UserInput {
+  String typename;
+  String? title;
+  String? text;
+  List<String>? items;
+
+  UserInput({
+    required this.typename,
+    this.title,
+    this.text,
+    this.items,
+  });
+
+  factory UserInput.fromJson(Map<String, dynamic> json) {
+    List<String>? items;
+    if (json['items'] != null) {
+      items = [];
+      for (int i = 0; i < json['items'].length; i++) {
+        items.add(json['items'][i]);
+      }
+    }
+    return UserInput(
+      typename: json['__typename'],
+      title: json['title'],
+      text: json['text'],
+      items: items,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        '__typename': typename,
+        'title': title,
+        'text': text,
+        'items': items,
       };
 
   @override
