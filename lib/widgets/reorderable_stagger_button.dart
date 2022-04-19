@@ -1,7 +1,9 @@
 import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:reorderableitemsview/reorderableitemsview.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import 'package:hello_button_v3/models/button.dart';
 import 'package:hello_button_v3/models/site.dart';
@@ -118,7 +120,7 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
     );
   }
 
-  void _actionProcessing(Button button) {
+  void _actionProcessing(Button button) async {
     print(button.action);
     switch (button.action.typename) {
       case 'Rating':
@@ -131,11 +133,16 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
       case 'Group':
         switch (button.action.userinput?.typename) {
           case 'UserInput':
-            _showTextDialog(context, button.action.userinput?.title,
-                button.action.userinput?.text);
+            String? val = await _showTextDialog(context,
+                button.action.userinput?.title, button.action.userinput?.text);
+            print('after text dialog: $val');
             break;
           case 'Selection':
-            _showSelection(context, button.action);
+            String? val = await _showSelection(context, button.action);
+            print('after selection $val');
+            if (val != null) {
+              await _showAlertDialog();
+            }
             break;
           case 'JustText':
           default:
@@ -147,40 +154,88 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
     }
   }
 
+  Future<void> _showAlertDialog() {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('AlertDialog Text'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('this is a demo'),
+                Text('hfjdaskf hdjaskf jsalkhfda'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Approve'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _launchURL(String url) async {
     if (!await launch(url)) {
       print('error launch');
     }
   }
 
-  void _showSelection(BuildContext context, ButtonAction action) {
-    print(action);
-    // Map<String, dynamic> ui = action['userinput'];
-    // print(ui);
-    // print(ui['items']);
-    // print(ui['items'].length);
-    // List<String> items =
-    //     (ui['items'] as List<String>).map((item) => item).toList();
-    // print(items);
-    // // for (int i = 0; i < ui['items'].length; i++) {
-    // //   String val = ui['items'][i];
-    // //   print(val);
-    // // }
-    // List<String> list = ui['items'];
-    // showModalBottomSheet(
-    //   context: context,
-    //   builder: (BuildContext context) {
-    //     return Container(
-    //       child: Column(
-    //         children: [],
-    //       ),
-    //     );
-    //   },
-    // );
+  Future<String?> _showSelection(
+      BuildContext context, ButtonAction action) async {
+    print('items: ${action.userinput?.items}');
+    return await showCupertinoModalBottomSheet(
+      context: context,
+      expand: false,
+      builder: (BuildContext context) {
+        return Material(
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                action.userinput?.title == null || action.userinput?.title == ''
+                    ? const SizedBox(height: 5)
+                    : Container(
+                        height: 50,
+                        child: Center(
+                          child: Text(
+                            action.userinput!.title!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                ...action.userinput!.items!
+                    .map((String item) => ListTile(
+                          title: Text(item.trim()),
+                          onTap: () {
+                            print('select: $item');
+                            Navigator.of(context).pop(item);
+                            //Navigator.pop(context, item);
+                          },
+                        ))
+                    .toList(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
-  void _showTextDialog(BuildContext context,
-      [String? title, String? message, String? logo]) {
+  Future<String?> _showTextDialog(BuildContext context,
+      [String? title, String? message, String? logo]) async {
     print('title: $title, msg: $message, logo: $logo');
     final _dialog = TextDialog(
       title: Text(
@@ -207,7 +262,7 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
       },
     );
 
-    showDialog(
+    return await showDialog(
       context: context,
       barrierDismissible: true, // set to false if you want to force a rating
       builder: (context) => _dialog,
@@ -215,7 +270,7 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
   }
 
   // show the rating dialog
-  void _showRatingDialog(BuildContext context, String? logo) {
+  void _showRatingDialog(BuildContext context, String? logo) async {
     final _dialog = RatingDialog(
       initialRating: 3.0,
       // your app's name?
@@ -279,7 +334,7 @@ class HelloButtonTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.0),
       ),
       child: InkWell(
-        onTap: () {
+        onTap: () async {
           callback.call(button);
         },
         child: Container(

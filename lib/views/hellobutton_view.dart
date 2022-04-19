@@ -8,7 +8,7 @@ import 'package:hello_button_v3/models/site.dart';
 import 'package:hello_button_v3/services/graphql.dart';
 import 'package:hello_button_v3/views/unknown_view.dart';
 import 'package:hello_button_v3/views/waiting_view.dart';
-import 'package:hello_button_v3/widgets/reorderable_staffer_button.dart';
+import 'package:hello_button_v3/widgets/reorderable_stagger_button.dart';
 
 class HelloButtonView extends StatefulWidget {
   const HelloButtonView({Key? key}) : super(key: key);
@@ -73,7 +73,7 @@ class _HelloButtonViewState extends State<HelloButtonView> {
                 code: 500);
           }
 
-          print(result);
+          //print(result);
           //
           // data의 내부 logic 에러 처리 시작
           //
