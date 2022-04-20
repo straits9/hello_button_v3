@@ -1,34 +1,7 @@
 import 'dart:async';
-
-import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-//const url =
-//    'https://vkmawdwa6h.execute-api.ap-northeast-2.amazonaws.com/dev/graphql/v3';
-const url = 'http://localhost:3000/dev/graphql/v3';
-//const url = 'http://192.168.0.19:3000/dev/graphql/v3';
-
 class GraphqlConfig {
-  static final HttpLink _httpLink = HttpLink(url);
-
-  //
-  // for Graphql Auth
-  //
-  // static final AuthLink _authLink = AuthLink(
-  //   getToken: () async => 'Bearer <YOUR_PERSONAL_ACCESS_TOKEN>',
-  // );
-  // static final Link link = _authLink.concat(_httpLink);
-  static final Link _link = _httpLink;
-
-  static ValueNotifier<GraphQLClient> initClient() {
-    ValueNotifier<GraphQLClient> client = ValueNotifier(
-      GraphQLClient(
-        link: _link,
-        cache: GraphQLCache(),
-      ),
-    );
-    return client;
-  }
 
   static handleError(Exception exception) {
     print(exception);

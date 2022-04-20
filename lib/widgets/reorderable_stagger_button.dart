@@ -1,15 +1,16 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:hello_button_v3/widgets/action_user_if.dart';
 import 'package:reorderableitemsview/reorderableitemsview.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import 'package:hello_button_v3/models/button.dart';
 import 'package:hello_button_v3/models/site.dart';
-import 'package:hello_button_v3/widgets/rating_dialog.dart';
-import 'package:hello_button_v3/widgets/text_dialog.dart';
 
+//
+// Site 정보를 가지고 hello button 페이지를 생성
+// param: Site
+//
 class ReorderStaggerButtonView extends StatefulWidget {
   final Site site;
   const ReorderStaggerButtonView({
@@ -30,13 +31,16 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
   @override
   void initState() {
     super.initState();
-    bGrid = true;
+
+    // staggered grid를 만들기 위한 grid structure를 생성
     for (var i = 0; i < widget.site.buttons!.length; i++) {
-      _tiles.add(HelloButtonTile(
+      // 기본적인 tile
+      _tiles.add(ButtonTileOverlap(
         Key(widget.site.buttons![i].id),
         widget.site.buttons![i],
-        _actionProcessing,
+        _buttonClickHandler, // onTap handler
       ));
+      // stagger grid의 size를 관리하는 tile (reorder에 사용된다)
       _listStaggeredTileExtended.add(StaggeredTileExtended.count(2, 2));
     }
   }
@@ -49,6 +53,7 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
     return Container(
       width: double.infinity,
       height: double.infinity,
+      // background가 설정이 되어 있는 경우 처리
       decoration: widget.site.background == null
           ? null
           : BoxDecoration(
@@ -59,7 +64,7 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
             ),
       child: SafeArea(
         child: Scaffold(
-          extendBodyBehindAppBar: true,
+          extendBodyBehindAppBar: true, // appbar 부분까지 통합 control
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             title: Center(
@@ -68,6 +73,7 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
                 textScaleFactor: 1.0,
                 maxLines: 2,
                 style: const TextStyle(
+                  // background에 의한 text color가 안보일때를 대비해서 shadow로 변별하게 처리
                   shadows: <Shadow>[
                     Shadow(
                       offset: Offset(0.0, 0.0),
@@ -78,9 +84,10 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
                 ),
               ),
             ),
-            elevation: 0,
+            elevation: 0, // appbar 부분까지 통합하는 내용
             //backgroundColor: Colors.transparent,
             backgroundColor: const Color.fromRGBO(255, 255, 255, 0.1),
+            // Blur filter를 appbar에 적용
             flexibleSpace: ClipRRect(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -89,7 +96,9 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
                 ),
               ),
             ),
-            toolbarHeight: h * 0.15,
+            toolbarHeight: h * 0.15, // appbar size: 15% of height
+
+            // appbar 오른쪽 button 정의
             actions: [
               IconButton(
                 onPressed: () => {
@@ -99,52 +108,60 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
               ),
             ],
           ),
+
+          // TODO: 상태에 따라서 reorderable이냐 기존 grid냐를 분기해야 함
           body: ReorderableItemsView(
-            padding:
-                EdgeInsets.symmetric(horizontal: 0.1 * w, vertical: 0.07 * w),
+            crossAxisCount: 4, // stagger grid를 위해서
+            padding: EdgeInsets.symmetric(
+              horizontal: 0.1 * w,
+              vertical: 0.07 * w,
+            ),
+            children: _tiles,
+            staggeredTiles: _listStaggeredTileExtended,
+            isGrid: bGrid,
+            longPressToDrag: true,
+            mainAxisSpacing: 0.07 * w,
+            crossAxisSpacing: 0.1 * w,
             onReorder: (int oldIndex, int newIndex) {
               setState(() {
                 _tiles.insert(newIndex, _tiles.removeAt(oldIndex));
               });
             },
-            children: _tiles,
-            crossAxisCount: 4,
-            isGrid: bGrid,
-            staggeredTiles: _listStaggeredTileExtended,
-            longPressToDrag: true,
-            mainAxisSpacing: 0.07 * w,
-            crossAxisSpacing: 0.1 * w,
           ),
         ),
       ),
     );
   }
 
-  void _actionProcessing(Button button) async {
+  void _buttonClickHandler(Button button) async {
     print(button.action);
     switch (button.action.typename) {
       case 'Rating':
-        _showRatingDialog(context, widget.site.logo);
+        showRatingDialog(context, widget.site.logo);
         break;
       case 'Link':
-        _launchURL(button.action.url!);
+        launchURL(button.action.url!);
         break;
       case 'CallMessage':
       case 'Group':
         switch (button.action.userinput?.typename) {
           case 'UserInput':
-            String? val = await _showTextDialog(context,
+            String? val = await showTextDialog(context,
                 button.action.userinput?.title, button.action.userinput?.text);
             print('after text dialog: $val');
             break;
           case 'Selection':
-            String? val = await _showSelection(context, button.action);
+            String? val = await showSelection(context, button.action);
             print('after selection $val');
             if (val != null) {
-              await _showAlertDialog();
+              bool cont = await showConfirmDialog(context, 'You choose the \'${button.action.message!} (${val.trim()})\' request.');
+              print(cont);
             }
             break;
           case 'JustText':
+            bool cont = await showConfirmDialog(context, 'You choose the \'${button.action.message!}\' request.');
+            print(cont);
+            break;
           default:
             break;
         }
@@ -153,204 +170,45 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
         ;
     }
   }
-
-  Future<void> _showAlertDialog() {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('AlertDialog Text'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: const <Widget>[
-                Text('this is a demo'),
-                Text('hfjdaskf hdjaskf jsalkhfda'),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Approve'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _launchURL(String url) async {
-    if (!await launch(url)) {
-      print('error launch');
-    }
-  }
-
-  Future<String?> _showSelection(
-      BuildContext context, ButtonAction action) async {
-    print('items: ${action.userinput?.items}');
-    return await showCupertinoModalBottomSheet(
-      context: context,
-      expand: false,
-      builder: (BuildContext context) {
-        return Material(
-          child: SafeArea(
-            top: false,
-            bottom: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                action.userinput?.title == null || action.userinput?.title == ''
-                    ? const SizedBox(height: 5)
-                    : Container(
-                        height: 50,
-                        child: Center(
-                          child: Text(
-                            action.userinput!.title!,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                ...action.userinput!.items!
-                    .map((String item) => ListTile(
-                          title: Text(item.trim()),
-                          onTap: () {
-                            print('select: $item');
-                            Navigator.of(context).pop(item);
-                            //Navigator.pop(context, item);
-                          },
-                        ))
-                    .toList(),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<String?> _showTextDialog(BuildContext context,
-      [String? title, String? message, String? logo]) async {
-    print('title: $title, msg: $message, logo: $logo');
-    final _dialog = TextDialog(
-      title: Text(
-        title ?? '',
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      message: message == null
-          ? null
-          : Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 15,
-              ),
-            ),
-      submitButtonText: 'Submit',
-      onCancelled: () => print('cancelled'),
-      onSubmitted: (response) {
-        print('text: ${response.text}');
-      },
-    );
-
-    return await showDialog(
-      context: context,
-      barrierDismissible: true, // set to false if you want to force a rating
-      builder: (context) => _dialog,
-    );
-  }
-
-  // show the rating dialog
-  void _showRatingDialog(BuildContext context, String? logo) async {
-    final _dialog = RatingDialog(
-      initialRating: 3.0,
-      // your app's name?
-      title: const Text(
-        'Rating Dialog',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 25,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      // encourage your user to leave a high rating?
-      message: const Text(
-        'Tap a star to set your rating. Add more description here if you want.',
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 15),
-      ),
-      // your app's logo?
-      // image: Image.asset('assets/images/bottom2.png'),
-      image: logo != null ? Image.network(logo) : null,
-      submitButtonText: 'Submit',
-      commentHint: 'Set your custom comment hint',
-      onCancelled: () => print('cancelled'),
-      onSubmitted: (response) {
-        print('rating: ${response.rating}, comment: ${response.comment}');
-
-        // TODO: add your own logic
-        if (response.rating < 3.0) {
-          // send their comments to your email or anywhere you wish
-          // ask the user to contact you instead of leaving a bad review
-        } else {
-          //_rateAndReviewApp();
-        }
-      },
-    );
-
-    // show the dialog
-    showDialog(
-      context: context,
-      barrierDismissible: true, // set to false if you want to force a rating
-      builder: (context) => _dialog,
-    );
-  }
 }
 
-class HelloButtonTile extends StatelessWidget {
-  const HelloButtonTile(
+// image를 background로 처리하고 그 위 하단에 title을 표시하는 button
+class ButtonTileOverlap extends StatelessWidget {
+  final Button button;
+  final Function(Button) ontap;
+  const ButtonTileOverlap(
     Key key,
     this.button,
-    this.callback,
+    this.ontap,
   ) : super(key: key);
 
-  final Button button;
-  final Function(Button) callback;
+  final double round = 20.0;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(round)),
       child: InkWell(
         onTap: () async {
-          callback.call(button);
+          ontap.call(button);
         },
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(round),
             image: DecorationImage(
-              fit: BoxFit.cover,
-              image: NetworkImage(imageUrlConvert(button.image!)),
-            ),
+                fit: BoxFit.cover,
+                image: NetworkImage(imageUrlConvert(button.image!))),
           ),
+
+          // image 위에 text를 배치하기 위해서 text에 대한 alignment와
+          // background image와의 분별력을 위해서 적당한 opacity의 block과 blur filter를
+          // 배치하여 그 위에 text를 drawing한다
           alignment: Alignment.bottomCenter,
           child: ClipRRect(
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(round),
+                bottomRight: Radius.circular(round)),
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
               child: Container(
@@ -358,13 +216,14 @@ class HelloButtonTile extends StatelessWidget {
                 color: const Color.fromRGBO(0, 0, 0, 0.2),
                 child: Padding(
                   padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                  // 기존 data에 line feed를 <BR>로 표기하였기 때문에 replace 필요
                   child: Text(
                     button.title.replaceAll("<BR>", '\n'),
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.3),
-                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
@@ -376,6 +235,68 @@ class HelloButtonTile extends StatelessWidget {
   }
 }
 
+// button을 조금더 길게 만들고 상부에 image를 정사각형으로 배치하고, image를 벗어난 하단에 title을 표시하는 button
+class ButtonTileOutsideTitle extends StatelessWidget {
+  final Button button;
+  final Function(Button) ontap;
+  const ButtonTileOutsideTitle({
+    Key? key,
+    required this.button,
+    required this.ontap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      key: ValueKey(button.title),
+      elevation: 0,
+      // color: Colors.white,
+      child: IntrinsicHeight(
+        child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                height: constraints.maxWidth,
+                // color: Colors.yellow,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.network(imageUrlConvert(button.image!),
+                      fit: BoxFit.cover),
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  child: Center(
+                    child: Text(
+                      button.title.replaceAll("<BR>", '\n'),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+}
+
+// 이전 version과 compatibility를 유지하기 위해서 S3 bucket <files.hellobell.net>에
+// vue /images directory를 옮겨놓고 이를 secure한 uri로 변경한다.
 const Map<String, String> prefixes = {
   'http://v2.hellobell.net':
       'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3',
@@ -385,8 +306,6 @@ const Map<String, String> prefixes = {
       'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3'
 };
 
-// 이전 version과 compatibility를 유지하기 위해서 S3 bucket <files.hellobell.net>에
-// vue /images directory를 옮겨놓고 이를 secure한 uri로 변경한다.
 String imageUrlConvert(String uri) {
   var matches =
       prefixes.keys.firstWhere((key) => uri.startsWith(key), orElse: () => '');

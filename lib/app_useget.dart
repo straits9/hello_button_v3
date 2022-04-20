@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hello_button_v3/views/hellobutton_view.dart';
-import 'package:hello_button_v3/views/order/order_view.dart';
 import 'package:hello_button_v3/views/top_view.dart';
 import 'package:hello_button_v3/views/unknown_view.dart';
 
@@ -53,7 +52,7 @@ class _MypGetAppState extends State<MypGetApp> {
             transition: Transition.noTransition),
         GetPage(
             name: '/menu/:store',
-            page: () => const OrderView(),
+            page: () => UnknownView('not supported'),
             transition: Transition.noTransition),
       ],
       // GetX의 unknown router에 문제가 있음. initalRoute를 '/'로 설정할 경우 unknownRoute가 작동하지 않음

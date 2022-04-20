@@ -110,12 +110,12 @@ class UserInput {
   factory UserInput.fromJson(Map<String, dynamic> json) {
     List<String>? items;
     if (json['items'] != null) {
-      print('user input conversion ${json['items']}');
+      // print('user input conversion ${json['items']}');
       items = [];
       for (int i = 0; i < json['items'].length; i++) {
         items.add(json['items'][i]);
       }
-      print(items);
+      // print(items);
     }
     return UserInput(
       typename: json['__typename'],

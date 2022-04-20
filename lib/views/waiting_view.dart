@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Progress indicator 페이지
 class WaitingView extends StatelessWidget {
   const WaitingView({Key? key}) : super(key: key);
 

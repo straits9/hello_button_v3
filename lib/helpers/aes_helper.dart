@@ -11,10 +11,15 @@ class AesHelper {
     encrypt_pack.IV ivObj = encrypt_pack.IV.fromUtf8(AppConfig.iv);
     encrypt_pack.Key keyObj = encrypt_pack.Key.fromUtf8(AppConfig.key);
 
+    code = code.toLowerCase();
+    print(code);
     final encrypter = encrypt_pack.Encrypter(
         encrypt_pack.AES(keyObj, mode: encrypt_pack.AESMode.cbc));
+    print(encrypt_pack.Encrypted.fromBase16(code).base16.toString());
+    print(keyObj);
     final decrypted =
         encrypter.decrypt(encrypt_pack.Encrypted.fromBase16(code), iv: ivObj);
+    print(decrypted);
     return decrypted;
   }
 
