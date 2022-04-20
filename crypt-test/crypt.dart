@@ -19,7 +19,6 @@ String enc(String payload) {
   encrypt_pack.IV ivObj = encrypt_pack.IV.fromUtf8(iv);
   encrypt_pack.Key keyObj = encrypt_pack.Key.fromUtf8(key);
 
-  // payload = payload.toLowerCase();
   final encrypter = encrypt_pack.Encrypter(
       encrypt_pack.AES(keyObj, mode: encrypt_pack.AESMode.cbc));
 

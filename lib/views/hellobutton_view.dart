@@ -14,6 +14,8 @@ import 'package:hello_button_v3/widgets/reorderable_stagger_button.dart';
 //
 // /hb/:code 처리의 기본 페이지
 //
+// code input을 처리하고, error 분류를 한뒤, GraphQL로 data를 받아온다.
+//
 class HelloButtonView extends StatefulWidget {
   const HelloButtonView({Key? key}) : super(key: key);
 
