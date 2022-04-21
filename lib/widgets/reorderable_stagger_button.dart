@@ -194,7 +194,7 @@ class ButtonTileOverlap extends StatelessWidget {
           ontap.call(button);
         },
         child: Container(
-          decoration: BoxDecoration(
+          decoration: button.image == null ? null : BoxDecoration(
             borderRadius: BorderRadius.circular(round),
             image: DecorationImage(
                 fit: BoxFit.cover,
