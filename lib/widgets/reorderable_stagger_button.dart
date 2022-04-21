@@ -142,6 +142,7 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
       case 'Link':
         launchURL(button.action.url!);
         break;
+      case 'Call':
       case 'CallMessage':
       case 'Group':
         switch (button.action.userinput?.typename) {
@@ -154,12 +155,14 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
             String? val = await showSelection(context, button.action);
             print('after selection $val');
             if (val != null) {
-              bool cont = await showConfirmDialog(context, 'You choose the \'${button.action.message!} (${val.trim()})\' request.');
+              bool cont = await showConfirmDialog(context,
+                  'You choose the \'${button.action.message!} (${val.trim()})\' request.');
               print(cont);
             }
             break;
           case 'JustText':
-            bool cont = await showConfirmDialog(context, 'You choose the \'${button.action.message!}\' request.');
+            bool cont = await showConfirmDialog(context,
+                'You choose the \'${button.action.message!}\' request.');
             print(cont);
             break;
           default:
@@ -194,12 +197,14 @@ class ButtonTileOverlap extends StatelessWidget {
           ontap.call(button);
         },
         child: Container(
-          decoration: button.image == null ? null : BoxDecoration(
-            borderRadius: BorderRadius.circular(round),
-            image: DecorationImage(
-                fit: BoxFit.cover,
-                image: NetworkImage(imageUrlConvert(button.image!))),
-          ),
+          decoration: button.image == null
+              ? null
+              : BoxDecoration(
+                  borderRadius: BorderRadius.circular(round),
+                  image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: NetworkImage(imageUrlConvert(button.image!))),
+                ),
 
           // image 위에 text를 배치하기 위해서 text에 대한 alignment와
           // background image와의 분별력을 위해서 적당한 opacity의 block과 blur filter를
