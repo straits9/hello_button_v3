@@ -11,10 +11,10 @@ class GlobalService {
     },
     'dev': {
       'graphqlAPI':
-          'https://vkmawdwa6h.execute-api.ap-northeast-2.amazonaws.com/dev',
+          'https://yg7jbrcnr7.execute-api.ap-northeast-2.amazonaws.com/dev',
     },
     'prod': {
-      'graphqlAPI': 'https://vkmawdwa6h.execute-api.ap-northeast-2.amazonaws.com/dev',
+      'graphqlAPI': 'https://yg7jbrcnr7.execute-api.ap-northeast-2.amazonaws.com/dev',
     },
   };
 
@@ -24,7 +24,7 @@ class GlobalService {
 
   String version = '';
   String build = '';
-  String stage = 'local';
+  String stage = 'prod';
   ValueNotifier<GraphQLClient>? client;
 
   ValueNotifier<GraphQLClient> initGraphQL() {

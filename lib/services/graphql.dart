@@ -87,7 +87,7 @@ class Queries {
             id, sn, siteId
             site {
                 id, name, desc, country, tz, locale, category, active, useButton
-                backgroundId, background, theme, logoId, logo
+                backgroundId, background, theme, logoId, logo, validWithin
                 createdAt, updatedAt
                 buttons(order: ASC) {
                     id, title, image, order, active, actionId, desc

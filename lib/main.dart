@@ -25,7 +25,7 @@ void main() async {
 Future<void> initServices() async {
   final GlobalService _global = GlobalService();
   final info = await PackageInfo.fromPlatform();
-  String stage = const String.fromEnvironment('stage', defaultValue: 'local');
+  String stage = const String.fromEnvironment('stage', defaultValue: 'prod');
 
   _global.version = info.version;
   _global.build = info.buildNumber;

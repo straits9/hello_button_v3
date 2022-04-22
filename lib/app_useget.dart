@@ -26,11 +26,6 @@ class _MypGetAppState extends State<MypGetApp> {
       title: 'Hello Button',
       theme: ThemeData(
         textTheme: GoogleFonts.notoSansGothicTextTheme(),
-        //primarySwatch: Colors.blue,
-        //appBarTheme: const AppBarTheme(
-        //  //backwardsCompatibility: false,
-        //  systemOverlayStyle: SystemUiOverlayStyle.dark,
-        //),
       ),
       initialRoute: '/admin',
       getPages: [
@@ -38,16 +33,9 @@ class _MypGetAppState extends State<MypGetApp> {
             name: '/admin',
             page: () => TopView(),
             transition: Transition.fadeIn),
-        // GetPage(name: '/splash', page: () => SplashView()),
         // TODO: /hb/test 경우 응답을 하지 않음.
-        //GetPage(
-        //    name: '/hb',
-        //    // page: () => ButtonView(),
-        //    page: () => HelloButtonView(),
-        //    transition: Transition.noTransition),
         GetPage(
             name: '/hb/:code',
-            // page: () => ButtonView(),
             page: () => HelloButtonView(),
             transition: Transition.noTransition),
         GetPage(

@@ -4,17 +4,24 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+
     {
       "name": "button Debug",
       "request": "launch",
       "type": "dart",
-      "args": ["--flavor", "local", "--dart-define", "stage=local"]
+      "args": ["--dart-define", "stage=local"]
     },
     {
       "name": "over LAN",
       "request": "launch",
       "type": "dart",
-      "args": ["--flavor", "local", "--web-hostname", "10.1.1.100"]
+      "args": ["--dart-define", "stage=local", "--web-hostname", "10.1.1.100"]
+    },
+    {
+      "name": "develop",
+      "request": "launch",
+      "type": "dart",
+      "args": ["--dart-define", "stage=dev"]
     },
     {
       "name": "hello_button_v3 (profile mode)",

@@ -12,6 +12,7 @@ class Site {
   String? background;
   String? logo;
   List<Button>? buttons;
+  int? validWithin;
 
   Site({
     required this.id,
@@ -24,6 +25,7 @@ class Site {
     this.background,
     this.logo,
     this.buttons,
+    this.validWithin,
   });
 
   factory Site.fromJson(Map<String, dynamic> json) {
@@ -46,6 +48,7 @@ class Site {
       theme: json['theme'],
       background: json['background'],
       logo: json['logo'],
+      validWithin: json['validWithin'],
       buttons: buttons,
     );
   }
@@ -60,6 +63,7 @@ class Site {
         'theme': theme,
         'background': background,
         'logo': logo,
+        'validWithin': validWithin,
         'buttons': buttons,
       };
 
