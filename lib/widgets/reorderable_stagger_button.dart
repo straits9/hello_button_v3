@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_button_v3/widgets/action_user_if.dart';
+import 'package:hello_button_v3/widgets/button_tile_overlap.dart';
 import 'package:reorderableitemsview/reorderableitemsview.dart';
 
 import 'package:hello_button_v3/models/button.dart';
@@ -143,6 +144,9 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
         launchURL(button.action.url!);
         break;
       case 'Call':
+        bool cont = await showConfirmDialog(
+            context, 'You choose the \'${button.title}\' request.');
+        break;
       case 'CallMessage':
       case 'Group':
         switch (button.action.userinput?.typename) {
@@ -173,152 +177,4 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
         ;
     }
   }
-}
-
-// image를 background로 처리하고 그 위 하단에 title을 표시하는 button
-class ButtonTileOverlap extends StatelessWidget {
-  final Button button;
-  final Function(Button) ontap;
-  const ButtonTileOverlap(
-    Key key,
-    this.button,
-    this.ontap,
-  ) : super(key: key);
-
-  final double round = 20.0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(round)),
-      child: InkWell(
-        onTap: () async {
-          ontap.call(button);
-        },
-        child: Container(
-          decoration: button.image == null
-              ? null
-              : BoxDecoration(
-                  borderRadius: BorderRadius.circular(round),
-                  image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: NetworkImage(imageUrlConvert(button.image!))),
-                ),
-
-          // image 위에 text를 배치하기 위해서 text에 대한 alignment와
-          // background image와의 분별력을 위해서 적당한 opacity의 block과 blur filter를
-          // 배치하여 그 위에 text를 drawing한다
-          alignment: Alignment.bottomCenter,
-          child: ClipRRect(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(round),
-                bottomRight: Radius.circular(round)),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-              child: Container(
-                width: double.infinity,
-                color: const Color.fromRGBO(0, 0, 0, 0.2),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                  // 기존 data에 line feed를 <BR>로 표기하였기 때문에 replace 필요
-                  child: Text(
-                    button.title.replaceAll("<BR>", '\n'),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.3),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// button을 조금더 길게 만들고 상부에 image를 정사각형으로 배치하고, image를 벗어난 하단에 title을 표시하는 button
-class ButtonTileOutsideTitle extends StatelessWidget {
-  final Button button;
-  final Function(Button) ontap;
-  const ButtonTileOutsideTitle({
-    Key? key,
-    required this.button,
-    required this.ontap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      key: ValueKey(button.title),
-      elevation: 0,
-      // color: Colors.white,
-      child: IntrinsicHeight(
-        child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                height: constraints.maxWidth,
-                // color: Colors.yellow,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Image.network(imageUrlConvert(button.image!),
-                      fit: BoxFit.cover),
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  child: Center(
-                    child: Text(
-                      button.title.replaceAll("<BR>", '\n'),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          );
-        }),
-      ),
-    );
-  }
-}
-
-// 이전 version과 compatibility를 유지하기 위해서 S3 bucket <files.hellobell.net>에
-// vue /images directory를 옮겨놓고 이를 secure한 uri로 변경한다.
-const Map<String, String> prefixes = {
-  'http://v2.hellobell.net':
-      'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3',
-  'http://files.hellobell.net':
-      'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net',
-  'https://bo.hellobell.net':
-      'https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/hellobutton/v3'
-};
-
-String imageUrlConvert(String uri) {
-  var matches =
-      prefixes.keys.firstWhere((key) => uri.startsWith(key), orElse: () => '');
-
-  if (matches != '') {
-    var modified = uri.replaceFirst(matches, prefixes[matches]!);
-    //print('conv url: $uri => $modified');
-    return modified;
-  }
-  return uri;
 }

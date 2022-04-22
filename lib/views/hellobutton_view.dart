@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+
 import 'package:hello_button_v3/helpers/aes_helper.dart';
 import 'package:hello_button_v3/models/site.dart';
 import 'package:hello_button_v3/services/global_service.dart';
@@ -26,7 +27,7 @@ class HelloButtonView extends StatefulWidget {
 class _HelloButtonViewState extends State<HelloButtonView> {
   final GlobalService global = GlobalService();
   late String? mac;
-  final int ts = DateTime.now().millisecondsSinceEpoch;
+  final int ts = (DateTime.now().millisecondsSinceEpoch / 1000).round();
 
   @override
   void initState() {
