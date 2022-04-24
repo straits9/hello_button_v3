@@ -14,6 +14,7 @@ HelloButton mobile web using flutter
 - 각 button의 image url을 amazon url로 변경 (https://s3.ap-northeast-2.amazonaws.com/files.hellobell.net/...) 그리고 secure https로 변경
 - 기존에 사용하지 않던 DB상의 theme, back_no를 사용하게 함.
 - GraphQL 형태로 서버 access 변경
+- action request는 기존의 hellobell.net의 api를 사용한다
 
 ### v3.1.0
 - ~~http://hbtn.kr/hb/... url을 https로 load balancer를 사용하여 redirect~~
@@ -42,7 +43,7 @@ test.hbtn.kr S3 bucket을 public access로 설정하여 http://test.hbtn.kr 로 
   ```
   $ rm -rf build/web
   $ flutter pub get
-  $ flutter build web --web-renderer canvaskit
+  $ flutter build web --dart-define="stage=<stage>" --web-renderer html
   ```
 - remove old one from S3 bucket
   ```

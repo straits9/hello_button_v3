@@ -10,11 +10,10 @@ class GlobalService {
       'graphqlAPI': 'http://localhost:3000/dev/graphql/v3',
     },
     'dev': {
-      'graphqlAPI':
-          'https://yg7jbrcnr7.execute-api.ap-northeast-2.amazonaws.com/dev',
+      'graphqlAPI': 'https://api4-dev.hfb.kr/graphql/v3',
     },
     'prod': {
-      'graphqlAPI': 'https://yg7jbrcnr7.execute-api.ap-northeast-2.amazonaws.com/dev',
+      'graphqlAPI': 'https://api4.hfb.kr/graphql/v3',
     },
   };
 
@@ -30,14 +29,14 @@ class GlobalService {
   ValueNotifier<GraphQLClient> initGraphQL() {
     String? token = config[stage]?['token'];
     client ??= ValueNotifier(
-        GraphQLClient(
-          link: token != null
-              ? AuthLink(getToken: () => 'Bearer $token')
-                  .concat(HttpLink(config[stage]!['graphqlAPI']!))
-              : HttpLink(config[stage]!['graphqlAPI']!),
-          cache: GraphQLCache(),
-        ),
-      );
+      GraphQLClient(
+        link: token != null
+            ? AuthLink(getToken: () => 'Bearer $token')
+                .concat(HttpLink(config[stage]!['graphqlAPI']!))
+            : HttpLink(config[stage]!['graphqlAPI']!),
+        cache: GraphQLCache(),
+      ),
+    );
     return client!;
   }
 

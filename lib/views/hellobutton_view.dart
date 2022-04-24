@@ -40,7 +40,7 @@ class _HelloButtonViewState extends State<HelloButtonView> {
     mac = _decodeParam(Get.parameters['code']);
     print('mac: $mac');
 
-    // TODO: 이부부을 사용할 것인지 결정을 해야 한다.
+    // TODO: 이부분을 사용할 것인지 결정을 해야 한다.
     // html에서 이 페이지를 떠나는 경우 처리
     html.window.onBeforeUnload.listen((event) async {
       print('leave current page');
@@ -80,7 +80,10 @@ class _HelloButtonViewState extends State<HelloButtonView> {
 
   @override
   Widget build(BuildContext context) {
-    if (reRoute) return Container(); // Get.offNamed는 현재 widget을 삭제후 진행이므로 현재 dummy widget이 존재해야 한다.
+    // initState에서 Get.offName으로 reroute를 schedule한 경우
+    // 현재 widget을 삭제후 진행하므로 dummy widget이 존재해야 한다.
+    if (reRoute) return Container();
+    // mac이 없는 경우는 error 페이지를 표시한다
     if (mac == null) return UnknownView('mac is not found');
 
     return GraphQLProvider(
@@ -99,9 +102,8 @@ class _HelloButtonViewState extends State<HelloButtonView> {
                 code: 500);
           }
 
-          // print(result);
           //
-          // data의 내부 logic 에러 처리 시작
+          // data의 내부 logic
           //
           Site? site = result.data?['deviceByMac']?['site'] == null
               ? null
@@ -109,24 +111,31 @@ class _HelloButtonViewState extends State<HelloButtonView> {
           // 해당 mac을 가진 device가 시스템에 등록되어 있지 않은 경우
           if (site == null) return UnknownView('No such device', code: 500);
 
-          // TODO: device가 시스템에 등록은 되어 있는데, hellobutton을 사용하지 않는 경우 처리. 현재는 null로 넘어감.
+          // TODO: device가 시스템에 등록은 되어 있는데, hellobutton을 사용하지 않는 경우 처리. 현재는 site=null로 넘어감.
 
-          // int secTimeout = site.validWithin! * 60;
-          int secTimeout = site.validWithin!; // for short time test
+          // HelloButton 페이지 자체의 timeout 처리에 대한 처리
+          int secTimeout = site.validWithin! * 60;
+          //int secTimeout = site.validWithin!; // for short time test
           print('time difference(sec): $diff');
           if (site.validWithin! == 0) {
-            // 0 값의 의미는 page timeout을 진행하지 않는다는 의미이다.
+            //
+            // validWithin = 0 값의 의미는 page timeout을 진행하지 않는다는 의미이다.
+            //
             return ReorderStaggerButtonView(site: site);
           } else if (diff! > secTimeout) {
-            // 사용가능한 시간을 지난 경우
+            //
+            // 이미 사용가능한 시간을 지난 경우
+            //
             return const TimeoutView();
           } else {
+            //
             // 사용 가능한 시간을 지나지 않은 경우 - timeout event를 만들어야 한다.
+            //
             int timeout = qrTime + secTimeout - ts;
             print('estimate timeout within $timeout (secs)');
             return FutureBuilder(
               future: Future.delayed(Duration(seconds: timeout), () {
-                print('timeout');
+                // 일정 시간 이후에 timeoutview로 이동한다
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
@@ -145,17 +154,8 @@ class _HelloButtonViewState extends State<HelloButtonView> {
               },
             );
           }
-          // return site.validWithin
-          // ? FutureBuilder(
-          //   const Duration()
-          //   builder: (builder, snapshot) {
-
-          //   }
-          // )
-          // : ReorderStaggerButtonView(site: site);
         },
       ),
     );
-    //return FullBackgroundImage2();
   }
 }

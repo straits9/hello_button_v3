@@ -5,6 +5,7 @@
   "version": "0.2.0",
   "configurations": [
 
+
     {
       "name": "button Debug",
       "request": "launch",
@@ -15,7 +16,7 @@
       "name": "over LAN",
       "request": "launch",
       "type": "dart",
-      "args": ["--dart-define", "stage=local", "--web-hostname", "10.1.1.100"]
+      "args": ["--dart-define", "stage=local", "--web-hostname", "0.0.0.0"]
     },
     {
       "name": "develop",
