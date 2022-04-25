@@ -7,13 +7,16 @@ class GlobalService {
 
   static const config = {
     'local': {
-      'graphqlAPI': 'http://10.1.1.100:3000/dev/v3/graphql',
+      'graphqlAPI': 'http://localhost:3000/dev/v3/graphql',
+      'wsAPI': 'ws://localhost:3001',
     },
     'dev': {
       'graphqlAPI': 'https://api4-dev.hfb.kr/v3/graphql',
+      'wsAPI': 'wss://ws-dev.hfb.kr/',
     },
     'prod': {
       'graphqlAPI': 'https://api4.hfb.kr/v3/graphql',
+      'wsAPI': 'wss://ws.hfb.kr/',
     },
   };
 
@@ -28,6 +31,21 @@ class GlobalService {
 
   ValueNotifier<GraphQLClient> initGraphQL() {
     String? token = config[stage]?['token'];
+    String? wsurl = config[stage]?['wsAPI'];
+
+    Link link = HttpLink(config[stage]!['graphqlAPI']!);
+    link = token != null
+        ? AuthLink(getToken: () => 'Bearer $token').concat(link)
+        : link;
+    link = wsurl != null
+        ? link.concat(WebSocketLink(wsurl,
+            config: SocketClientConfig(
+                autoReconnect: true,
+                inactivityTimeout: const Duration(seconds: 30),
+                initialPayload: {
+                  'headers': {'Authorization': token},
+                })))
+        : link;
     client ??= ValueNotifier(
       GraphQLClient(
         link: token != null
