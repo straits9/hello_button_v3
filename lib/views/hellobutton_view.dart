@@ -49,8 +49,10 @@ class _HelloButtonViewState extends State<HelloButtonView> {
     });
 
     // web index.html에서 설정해놓은 status bar 관련 function을 호출한다.
-    if (kIsWeb)
+    if (kIsWeb) {
       js.context.callMethod('setMetaThemeColor', ['transparent']);
+      // js.context.callMethod('lockScreen');
+    }
   }
 
   // :code parameter를 분석하는 부분
