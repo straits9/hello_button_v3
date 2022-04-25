@@ -22,9 +22,10 @@ class _MypGetAppState extends State<MypGetApp> {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: true,
       title: 'Hello Button',
       theme: ThemeData(
+        primaryColor: Colors.white,
         textTheme: GoogleFonts.notoSansGothicTextTheme(),
       ),
       initialRoute: '/admin',

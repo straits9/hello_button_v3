@@ -37,8 +37,24 @@ var iat = Math.floor(Date.now() / 1000);
 // var e = '33d85ec5dd940f16e5af889c488d8c5629b1ed30dd8d7ca05fe8e7b425ec9eb0';
 
 if (process.argv[2] == 'enc') {
-    
     console.log('enc');
+    var e = enc(process.argv[3]);
+    var d = dec(e);
+    var d1 = dec(e.toUpperCase());
+    console.log(`encrypted: ${e}`);
+    console.log(`original : ${process.argv[3]}`);
+    console.log(`decrypted: ${d}`);
+    console.log(`decrypted: ${d1}`);
+} else if (process.argv[2] == 'dec') {
+    console.log('dec');
+    var d = dec(process.argv[3]);
+    console.log(`decrypted: [${d}]`);
+    // console.log(`lower case for decrypted: ${d.toLowerCase()}`);
+    // var e = enc(d.toLowerCase());
+    var e = enc(d);
+    console.log(`encrypted: [${e.toUpperCase()}]`);
+    console.log(`original : [${process.argv[3].toUpperCase()}]`);
+    console.log(`equal check: ${process.argv[3].toUpperCase() == e.toUpperCase()}`);
 } else {
     console.log('other');
 }

@@ -124,3 +124,19 @@ Local test를 위해서 nginx를 사용한다. 기존의 http-server와 걑은 �
 ## Flutter web icon 설정
 web browser에서 tab내의 icon을 변경한다.
 - refer: [How to configure icon for my flutter web application?](https://stackoverflow.com/questions/56745525/how-to-configure-icon-for-my-flutter-web-application)
+
+## Mobile web에서 statusbar color control
+
+web/index.html에서 다음과 같이 function을 정의하고
+```
+function setMetaThemeColor(color) {
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", color);
+}
+```
+
+flutter에서 다음과 같이 사용한다.
+```
+if (kIsWeb) js.context.callMethod('setMetaThemeColor', ['#FFFFFF']);
+```
+
+- refer: [Meta Theme Color and Trickery](https://css-tricks.com/meta-theme-color-and-trickery/)

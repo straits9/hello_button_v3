@@ -7,7 +7,7 @@ class GlobalService {
 
   static const config = {
     'local': {
-      'graphqlAPI': 'http://localhost:3000/dev/v3/graphql',
+      'graphqlAPI': 'http://10.1.1.100:3000/dev/v3/graphql',
     },
     'dev': {
       'graphqlAPI': 'https://api4-dev.hfb.kr/v3/graphql',

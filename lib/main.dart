@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 
 import './app_useget.dart';
@@ -17,6 +18,14 @@ void main() async {
   FlutterError.onError = (details) {
     FlutterError.dumpErrorToConsole(details);
   };
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.transparent,
+      statusBarColor: Colors.red,
+      statusBarIconBrightness: Brightness.dark,
+    )
+  );
 
   await initServices();
   runApp(const MypGetApp());

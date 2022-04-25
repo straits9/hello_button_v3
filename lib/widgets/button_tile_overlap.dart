@@ -26,7 +26,7 @@ class ButtonTileOverlap extends StatelessWidget {
         onTap: () async {
           ontap.call(button);
         },
-        child: buildBlurredImage2(),
+        child: buildBlurredImage1(),
       ),
     );
   }

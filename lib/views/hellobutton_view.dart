@@ -1,4 +1,6 @@
 import 'dart:html' as html;
+import 'dart:js' as js;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -45,6 +47,10 @@ class _HelloButtonViewState extends State<HelloButtonView> {
     html.window.onBeforeUnload.listen((event) async {
       print('leave current page');
     });
+
+    // web index.html에서 설정해놓은 status bar 관련 function을 호출한다.
+    if (kIsWeb)
+      js.context.callMethod('setMetaThemeColor', ['transparent']);
   }
 
   // :code parameter를 분석하는 부분
@@ -69,9 +75,10 @@ class _HelloButtonViewState extends State<HelloButtonView> {
 
     // decode 진행, 오류시 mac = null로 변환한다.
     try {
-      List decoded = AesHelper.extractPayload(param).split(' ');
+      List decoded = AesHelper.extractPayload(param).trim().split(' ');
       diff = ts - (qrTime = int.parse(decoded[0]));
-      return decoded[1];
+      // decrypt 뒷부분에 네개의 0가 붙는데 이를 제거하기 위해서 substring을 사용한다.
+      return (decoded[1] as String).substring(0, 17);
     } catch (e) {
       print(e);
       return null;

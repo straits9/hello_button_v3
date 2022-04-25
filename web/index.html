@@ -39,6 +39,9 @@
   <script>
     // Paul Choi to lock screen rotate
     //screen.orientation.lock("portrait");
+    function setMetaThemeColor(color) {
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", color);
+    }
 
     var serviceWorkerVersion = null;
     var scriptLoaded = false;
