@@ -17,12 +17,14 @@ Future<bool> showConfirmDialog(BuildContext context, String message) async {
     barrierDismissible: false,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text('Confirm'),
+        // title: const Text('Confirm'),
+        title: const Text('확인'),
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
               Text(message),
-              const Text('Do you want to continue?'),
+              // const Text('Do you want to continue?'),
+              const Text('계속 진행할까요?'),
             ],
           ),
         ),
@@ -31,13 +33,15 @@ Future<bool> showConfirmDialog(BuildContext context, String message) async {
             onPressed: () {
               Navigator.of(context).pop(false);
             },
-            child: const Text('Cancel'),
+            // child: const Text('Cancel'),
+            child: const Text('취소'),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(true);
             },
-            child: const Text('Confirm'),
+            // child: const Text('Confirm'),
+            child: const Text('확인'),
           ),
         ],
       );
@@ -118,7 +122,8 @@ Future<String?> showTextDialog(BuildContext context,
               fontSize: 15,
             ),
           ),
-    submitButtonText: 'Submit',
+    // submitButtonText: 'Submit',
+    submitButtonText: '확인',
     onCancelled: () => print('cancelled'),
     onSubmitted: (response) {
       print('text: ${response.text}');
@@ -138,7 +143,8 @@ void showRatingDialog(BuildContext context, String? logo) async {
     initialRating: 0.0,
     // your app's name?
     title: const Text(
-      'Service Satisfication',
+      // 'Service Satisfication',
+      '고객 만족도 조사',
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 25,
@@ -147,15 +153,18 @@ void showRatingDialog(BuildContext context, String? logo) async {
     ),
     // encourage your user to leave a high rating?
     message: const Text(
-      'Please indicate your level of satisfaction to provide better service.',
+      // 'Please indicate your level of satisfaction to provide better service.',
+      '더 나은 서비스를 제공하기 위해 귀하의 만족도를 표시해 주세요.',
       textAlign: TextAlign.center,
       style: TextStyle(fontSize: 15),
     ),
     // your app's logo?
     // image: Image.asset('assets/images/bottom2.png'),
     image: logo != null ? Image.network(logo) : null,
-    submitButtonText: 'Submit',
-    commentHint: 'Any improvements you would like to see.',
+    // submitButtonText: 'Submit',
+    submitButtonText: '등록',
+    // commentHint: 'Any improvements you would like to see.',
+    commentHint: '개선사항을 적어주세요.',
     onCancelled: () => print('cancelled'),
     onSubmitted: (response) {
       print('rating: ${response.rating}, comment: ${response.comment}');

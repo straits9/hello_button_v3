@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hello_button_v3/widgets/action_user_if.dart';
 import 'package:hello_button_v3/widgets/button_tile_overlap.dart';
 import 'package:reorderableitemsview/reorderableitemsview.dart';
@@ -104,7 +103,7 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
             actions: [
               IconButton(
                 onPressed: () => {
-                  setState(() => {bGrid = !bGrid})
+                  // setState(() => {bGrid = !bGrid})
                 },
                 icon: const Icon(Icons.more_vert),
               ),
@@ -113,7 +112,7 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
 
           // TODO: 상태에 따라서 reorderable이냐 기존 grid냐를 분기해야 함
           body: ReorderableItemsView(
-            crossAxisCount: 4, // stagger grid를 위해서
+            crossAxisCount: w > 600 ? 6 : 4, // stagger grid를 위해서
             padding: EdgeInsets.symmetric(
               horizontal: 0.1 * w,
               vertical: 0.07 * w,
@@ -145,8 +144,9 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
         launchURL(button.action.url!);
         break;
       case 'Call':
-        bool cont = await showConfirmDialog(
-            context, 'You choose the \'${button.title}\' request.');
+        bool cont = await showConfirmDialog(context,
+            // 'You choose the \'${button.title}\' request.');
+            '\'${button.title}\' 서비스를 선택하셨습니다.');
         break;
       case 'CallMessage':
       case 'Group':
@@ -161,13 +161,15 @@ class _ReorderStaggerButtonViewState extends State<ReorderStaggerButtonView> {
             print('after selection $val');
             if (val != null) {
               bool cont = await showConfirmDialog(context,
-                  'You choose the \'${button.action.message!} (${val.trim()})\' request.');
+                  // 'You choose the \'${button.action.message!} (${val.trim()})\' request.');
+                  '\'${button.action.message!} (${val.trim()})\' 서비스를 요청하셨습니다.');
               print(cont);
             }
             break;
           case 'JustText':
             bool cont = await showConfirmDialog(context,
-                'You choose the \'${button.action.message!}\' request.');
+                // 'You choose the \'${button.action.message!}\' request.');
+                '\'${button.action.message!}\' 서비스를 요청하셨습니다.');
             print(cont);
             break;
           default:

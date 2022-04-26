@@ -44,9 +44,9 @@ class _HelloButtonViewState extends State<HelloButtonView> {
 
     // TODO: 이부분을 사용할 것인지 결정을 해야 한다.
     // html에서 이 페이지를 떠나는 경우 처리
-    html.window.onBeforeUnload.listen((event) async {
-      print('leave current page');
-    });
+    // html.window.onBeforeUnload.listen((event) async {
+    //   print('leave current page');
+    // });
 
     // web index.html에서 설정해놓은 status bar 관련 function을 호출한다.
     if (kIsWeb) {

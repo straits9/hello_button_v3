@@ -26,6 +26,7 @@ class _MypGetAppState extends State<MypGetApp> {
       title: 'Hello Button',
       theme: ThemeData(
         primaryColor: Colors.white,
+        fontFamily: GoogleFonts.notoSansGothic().fontFamily,
         textTheme: GoogleFonts.notoSansGothicTextTheme(),
       ),
       initialRoute: '/admin',
